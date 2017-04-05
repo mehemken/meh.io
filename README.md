@@ -6,6 +6,6 @@ I've built this site using [Flask][1] and a static site generator called [Frozen
 
 [mehemken.io][3]
 
-[1]: http://flask.pocoo.org/                  "Flask"
-[2]: http://pythonhosted.org/Frozen-Flask/    "Frozen"
-[3]: http://mehemken.io/                      "Marco"
+[1]: http://flask.pocoo.org/                  "A python web framework"
+[2]: http://pythonhosted.org/Frozen-Flask/    "A static site generator"
+[3]: http://mehemken.io/                      "The most employable guy"
