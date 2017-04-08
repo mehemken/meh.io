@@ -7,8 +7,10 @@ import sys
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG, format='%(message)s')
 
+args = ['cd', 'files', '&&', 'python', '-m', 'http.server']
+
 logger.info('starting the server')
-with subprocess.Popen(['python', '-m', 'http.server']) as p:
+with subprocess.Popen(args) as p:
     logger.info('server has started')
 
     logger.info('sleeping for one second')
