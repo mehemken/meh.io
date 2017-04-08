@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('Build') { 
             steps { 
-                sh git pull #static site files
+                sh deploy_scripts/build.sh
             }
         }
         stage('Test'){
@@ -14,7 +14,7 @@ pipeline {
         }
         stage('Deploy') {
             steps {
-                sh build script
+                sh deploy_scripts/deploy.sh
             }
         }
     }
