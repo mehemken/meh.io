@@ -6,7 +6,7 @@ pipeline {
     stages {
         stage('Integration') {
             steps {
-	        sh 'cp -r ./files ~/git/meh.io/files'
+	        sh 'echo foo'
             }
         }
     }
