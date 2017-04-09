@@ -10,7 +10,7 @@ pipeline {
     stages {
         stage('Integration') {
             steps {
-	        sh 'echo "foo bar baz"'
+	        sh 'cp files/ /home/ubuntu/deployment/'
             }
         }
     }
