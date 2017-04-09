@@ -1,21 +1,23 @@
 pipeline {
-    agent any 
-
+    agent any
+    triggers {
+        pollSCM 'H/10 * * * *'
+    }
     stages {
-        stage('Build') { 
-            steps { 
-                sh deploy_scripts/build.sh
+        stage('Integration') {
+            steps {
+                git pull
             }
         }
-        stage('Test'){
+        stage('Delivery') {
             steps {
-                sh pytest #run tests
+                sudo cp -r files /var/www/meh.io/files
             }
         }
-        stage('Deploy') {
-            steps {
-                sh deploy_scripts/deploy.sh
-            }
+    }
+    post {
+        always {
+            sudo nginx -s reload
         }
     }
 }

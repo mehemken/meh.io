@@ -10,7 +10,8 @@ logging.basicConfig(level=logging.DEBUG)
 
 @pytest.fixture
 def httpd(request):
-    p = subprocess.Popen(['python', '-m', 'http.server'])
+    args = ['python', '-m', 'http.server']
+    p = subprocess.Popen(args)
     logger.info('server has started')
 
     logger.info('sleeping for one second')
@@ -27,6 +28,6 @@ def httpd(request):
 
 
 def test_server(httpd):
-    response = requests.get('http://localhost:8000/index.html')
+    response = requests.get('http://localhost:8000/files/index.html')
     logger.info('asserting response is 200')
     assert response.status_code == 200
