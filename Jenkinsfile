@@ -6,7 +6,7 @@ pipeline {
     stages {
         stage('Integration') {
             steps {
-	        sh 'echo foo'
+	        sh 'echo "foo bar baz"'
             }
         }
     }
