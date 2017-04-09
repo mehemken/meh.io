@@ -1,5 +1,10 @@
 pipeline {
-    agent any
+    agent {
+        node {
+            label 'master'
+            customWorkspace '~/git/meh.io'
+        }
+    }
     triggers {
         pollSCM('*/5 * * * *')
     }
