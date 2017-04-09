@@ -10,7 +10,7 @@ pipeline {
     stages {
         stage('Integration') {
             steps {
-	        sh 'cp files/ /home/ubuntu/deployment/'
+	        sh 'cp -r files/ /home/ubuntu/deployment/'
             }
         }
     }
