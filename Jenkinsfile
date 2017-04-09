@@ -2,7 +2,7 @@ pipeline {
     agent {
         node {
             label 'master'
-            customWorkspace '~/git/meh.io'
+            customWorkspace '/home/ubuntu/git/meh.io'
         }
     }
     triggers {
