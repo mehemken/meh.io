@@ -1,23 +1,15 @@
 pipeline {
     agent any
     triggers {
-        pollSCM 'H/10 * * * *'
+        pollSCM '*/5 * * * *'
     }
     stages {
         stage('Integration') {
             steps {
                 git pull
+	        sh 'sudo cp -r ./files /var/www/fanoftal2.io/html/meh.io/files'
+	        sh 'sudo chown -R $USER:$USER /var/www/fanoftal2.io/html/meh.io'
             }
-        }
-        stage('Delivery') {
-            steps {
-                sudo cp -r files /var/www/meh.io/files
-            }
-        }
-    }
-    post {
-        always {
-            sudo nginx -s reload
         }
     }
 }
