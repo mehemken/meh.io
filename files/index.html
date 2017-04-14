@@ -35,8 +35,6 @@
         </div>
         <div id="navbar" class="collapse navbar-collapse">
           <ul class="nav navbar-nav">
-            <li><a href="/">About me</a></li>
-	    <li><a href="/resume/">Resume</a></li>
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">More stuff<span class="caret"></span></a>
               <ul class="dropdown-menu">
@@ -58,52 +56,53 @@
 
     <!-- Begin page content -->
     <div class="container">
-        <!--
-      <div class="page-header">
-      </div>
-      <h1></h1>
-      <p class="lead"></p>
-        -->
-
+        <div class="row">
+	    <div class="col-xs-7 col-sm-6 col-lg-8">
 
     <h1>About me</h1>
     <p class="lead">I write computer programs in python and build stuff on AWS.</p>
+    <p><a href="/static/resume/resume.pdf" class="btn btn-default" role="button"><span class="glyphicon glyphicon-download"></span> Download resume as pdf</a></p>
     <hr>
     <h2>Marco Hemken</h2>
 <p>I'm a developer and operations engineer in Los Angeles, CA. Most of my code is done with Python, with which I've written several programs and tools that automate <a href="https://git-scm.com/" title="Source code management.">git</a>, <a href="https://www.docker.com/what-docker" title="The world's leading container platform.">docker</a>, <a href="http://www.vim.org/" title="Vim, the ubiquitous text editor.">vim</a>, <a href="https://tmux.github.io/" title="A terminal multiplexer.">tmux</a> and <a href="https://www.mozilla.org/en-US/firefox/products/?v=a" title="Internet for people, not profit.">firefox</a>. I currently use <a href="https://aws.amazon.com/" title="The cloud.">AWS</a> for a few personal services that I've written in the <a href="http://flask.pocoo.org/" title="Web development, one drop at a time.">Flask</a>. Those are served up with <a href="https://www.nginx.com/resources/wiki/" title="More than a simple web server.">Nginx</a> and my CI/CD is powered by <a href="https://jenkins.io/" title="The leading open source automation server.">Jenkins</a>. In my spare time I train <a href="http://levelupjiujitsu.com/west-los-angeles-brazilian-jiu-jitsu/" title="LevelUp BJJ.">Brazilian Jiu Jitsu</a>.</p>
-<h2>Contact</h2>
-<ul>
-<li>GitHub: <a href="https://github.com/mehemken" title="GitHub/mehemken">mehemken</a></li>
-<li>Twitter: <a href="https://twitter.com/mehemken" title="twitter/mehemken">@mehemken</a></li>
-<li>Gmail: mehemken</li>
-</ul>
-<h2>What can Marco do for you?</h2>
+<h2>What I do</h2>
 <ul>
 <li>Cloud infrastructure (on <a href="https://git-scm.com/" title="Source code management.">AWS</a>)</li>
 <li>Configure your webserver (with <a href="https://www.docker.com/what-docker" title="The world's leading container platform.">Nginx</a>)</li>
 <li>CI/CD pipeline (with <a href="http://www.vim.org/" title="Vim, the ubiquitous text editor.">Jenkins</a>)</li>
 <li>Lightweight user interface (with <a href="https://tmux.github.io/" title="A terminal multiplexer.">Python/Flask</a>)</li>
 </ul>
-<p>If you'd like to hire me on a contract basis, please send me an email. I'm on Gmail using the same handle I use on this site.</p>
+<h2>Work</h2>
+<p>If you'd like to hire me on a contract basis, please send me an email. I'm on Gmail using the same handle I use on this site. I actively pursue freelance projects as my time permits. My most recent project was setting up a Wordpress installation for a Brazilian Jiu Jitsu academy in Los Angeles. If you are not in Los Angeles, but would like to hire me, I am open to working remotely.</p>
+<h2>Contact</h2>
+<ul>
+<li>GitHub: <a href="https://github.com/mehemken" title="GitHub/mehemken">mehemken</a></li>
+<li>Twitter: <a href="https://twitter.com/mehemken" title="twitter/mehemken">@mehemken</a></li>
+<li>Gmail: mehemken</li>
+</ul>
 <h2>This site is under construction</h2>
 <p>More content coming soon...</p>
 
-
+	    </div>
+	    <div class="col-xs-5 col-sm-6 col-lg-4"></div>
+	</div>
     </div>
 
     <footer class="footer">
       <div class="container">
-          <p class="text-muted">&copy; Marco Hemken 2017</p>
+	  <div class="row">
+	    <div class="col-xs-12">
+		<p class="text-muted"><span class="glyphicon glyphicon-copyright-mark"></span>
+	       	Marco Hemken 2017 | <a href="/static/resume/resume.pdf"><span class="glyphicon glyphicon-download"></span> Download resume as pdf</a></p>
+	    </div>
+	    <div class="col-xs-12"></div>
+	  </div>
       </div>
     </footer>
 
 
     <!-- Bootstrap core JavaScript
     ================================================== -->
-    <!-- Placed at the end of the document so the pages load faster 
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-    <script src="/static/bootstrap/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
--->
     <script src="/static/jquery/jquery.min.js"></script>
     <script src="/static/bootstrap/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
   </body>
