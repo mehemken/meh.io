@@ -34,11 +34,6 @@ def test_index(httpd):
     logger.info('asserting response is 200')
     assert response.status_code == 200
 
-def test_resume_page(httpd):
-    response = requests.get('http://localhost:8001/files/resume/')
-    logger.info('asserting response is 200')
-    assert response.status_code == 200
-
 def test_resume_pdf(httpd):
     response = requests.get('http://localhost:8001/files/static/resume/resume.pdf')
     logger.info('asserting response is 200')
