@@ -63,21 +63,86 @@
             <h1>Getting started w/ AWS CLI and Boto3</h1>
             <p class="lead">13 May 2017</p>
             <hr>
-            <h2>Installing the AWS CLI</h2>
-<p>This is how you install the AWS CLI.</p>
-<h2>Hello-world for the AWS CLI</h2>
-<p>Then you'll have to write a CloudFormation template. Once you have that just do
-a</p>
-<pre><code>aws cloudformation deploy --template-file &lt;filename&gt;
+            <p>This post is in progress...</p>
+<h2>Installing the AWS CLI</h2>
+<p>First and foremost, I recommend the <a href="http://docs.aws.amazon.com/cli/latest/userguide/installing.html" title="Installing the AWS CLI">AWS CLI Installation Instructions</a> provided by Amazon. They are pretty straightforward (if you're on linux). I can only vouch for the Linux version of this as I have not tried it on Windows.</p>
+<p>If you are working on a Windows system you won't be able to follow along in this tutorial. I recommend you spin up a VM or dual boot your computer. Or better yet, spin up an EC2 instance and connect to it. I recommend using the Amazon Linux AMI as it comes with the AWS CLI preinstalled [citation needed]. If you have Ubuntu and Python 2.6.5+ or Python 3.3+ installation is as easy as</p>
+<pre><code>$ pip install --upgrade --user awscli
 </code></pre>
+<p>For more info on the flags there see the <a href="http://docs.aws.amazon.com/cli/latest/userguide/installing.html" title="Installing the AWS CLI">AWS Docs</a> on it. After you've installed it you may need to add the tool to your PATH. The default directory where the CLI is installed is <code>~/.local/bin</code>, but double check first.</p>
+<pre><code>$ ls ~/.local/bin
+aws                 aws_zsh_completer.sh  ...
+aws_bash_completer  jp.py                 ...
+...
+$ export PATH=~/.local/bin:$PATH
+</code></pre>
+<p>If you don't see the <code>aws</code> binary in that directory, you'll have to do some troubleshooting. See the <a href="http://docs.aws.amazon.com/cli/latest/userguide/installing.html" title="Installing the AWS CLI">docs</a>. Another thing you might find useful is <a href="http://docs.aws.amazon.com/cli/latest/userguide/cli-command-completion.html" title="AWS CLI autocompletion guide">autocompletion</a>. This should be as easy as adding a line to your terminal emulator's rc file.</p>
+<p>If you don't know what terminal you have, you're most likely using bash. In your favorite editor open <code>~/.bashrc</code>. For those new to a Linux environment, it is a hidden file so you may not be able to see it by default in your file finder. There should be an option somewhere to reveal it. Add this to the end of the file</p>
+<pre><code>complete -C '&lt;installation directory&gt;/aws_completer' aws
+</code></pre>
+<p>Where <code>&lt;installation directory&gt;</code> is <a href="http://docs.aws.amazon.com/cli/latest/userguide/cli-command-completion.html#cli-command-completion-completer" title="Locate the AWS Completer">the directory where pip installed the AWS CLI</a>. I happen to be using the zsh completer and I didn't run into any issues with the instructions on the AWS <a href="http://docs.aws.amazon.com/cli/latest/userguide/cli-command-completion.html" title="AWS CLI autocompletion guide">autocompletion Docs</a>.</p>
+<hr />
+<h2>First steps with the CLI</h2>
+<p>What you'll get out of this tutorial is a hello-world type automation script. We'll be creating an EC2 instance and an S3 bucket. Then we'll add some IAM security controls on them.</p>
+<p>Funny enough, you can't just do something like</p>
+<pre><code>$ aws EC2 launch instance
+</code></pre>
+<p>That does not exist. We will have to write a <a href="https://aws.amazon.com/documentation/cloudformation/" title="CloudFormation Docs">CloudFormation</a> template. These are json or yaml files that describe the resources you want to launch in AWS. Get your favorite editor and write this:</p>
+<pre><code>// file: hello-bucket.json
+{
+    "Resources" : {
+        "HelloBucket" : {
+            "Type" : "AWS::S3::Bucket"
+        }
+    }
+}
+</code></pre>
+<p>Here, you are defining a resource and its name is HelloBucket. It is an S3 bucket. We can now use the CLI to launch this.</p>
+<p>You will want to see what's going on here. Before you do anything, open up your AWS console. I'm assuming you know how to navigate it. In the Services dropdown under Storage, pick S3. Notice how nothing there is named HelloBucket.</p>
+<p>Now enter the following command. Make sure you're in the directory that contains the file.</p>
+<pre><code># Line breaks included for clarity.
+# Don't include them in your terminal.
+
+$ aws cloudformation deploy
+    --template-file hello-bucket.json
+    --stack-name helloBucketStack
+</code></pre>
+<p>It will take a minute to set things up, but once it's done, click the circular refresh arrows on the AWS S3 page. You should see something like <code>hellobucketstack-hellobucket-1imwav37498hg</code>.</p>
+<p>The beauty of this is that AWS treats this bucket as part of a template. If you tear down the template, you tear down everyting. (You can choose to keep buckets when taking down a CloudFormation template, but that's outside the scope of this article.)</p>
+<pre><code>$ aws cloudformation describe-stacks
+</code></pre>
+<p>This will show you some descriptive things about your stack. If your stack failed to complete, you'll see some helpful hints in the output. For now, let's get rid of it and create something new.</p>
+<pre><code>$ aws cloudformation delete-stack
+    --stack-name helloBucketStack
+</code></pre>
+<p>Let's go back to the template and add a resource. You will notice that I've added a "<a href="http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-instance.html#aws-resource-ec2-instance-syntax" title="EC2 Syntax">Properties</a>" list. These are the two required properties for an EC2 instance to launch. If you do not include them, your stack will begin to launch, but it will fail and eventually it will be rolled back.</p>
+<pre><code>// file: hello-bucket.json
+{
+    "Resources" : {
+        "HelloBucket" : {
+            "Type" : "AWS::S3::Bucket"
+        },
+        "HelloT2micro" : {
+            "Type" : "AWS::EC2::Instance",
+            "Properties" : {
+                "InstanceType" : "t2.micro",
+                "ImageId" : "ami-efd0428f"
+            }
+        }
+    }
+}
+</code></pre>
+<p>The ImageId I'm using here is the Ubuntu 16.04 image for us-west-2 (citation needed).</p>
+<h3>Notes and next steps</h3>
+<p>To do
+- Secure the S3 with IAM roles<br />
+- Secure the EC2 with IAM and some pem keys  </p>
+<hr />
 <h2>Installing Boto3</h2>
 <p>These are boto3 installation instructions...</p>
+<hr />
 <h2>Hello-world for Boto3</h2>
 <p>Here's how to run the same CloudFormation template from a Python script.</p>
-<h2>Securing the S3 bucket</h2>
-<p>Some IAM rules would be nice no?</p>
-<h2>Securing the EC2</h2>
-<p>Port 22 is mine.</p>
             <!--
             -->
 	    </div>
