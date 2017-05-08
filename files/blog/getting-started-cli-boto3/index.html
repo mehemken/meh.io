@@ -60,7 +60,7 @@
     <div class="container">
         <div class="row">
 	    <div class="col-xs-8 col-sm-8 col-lg-8">
-            <h1>Getting started w/ AWS CLI and Boto3</h1>
+            <h1>Getting started w/ AWS CLI</h1>
             <p class="lead">13 May 2017</p>
             <hr>
             <p>This post is in progress...</p>
@@ -140,11 +140,6 @@ $ aws cloudformation deploy
 <p>You might say, well that's not secure at all. Let's add some roles to that. The first thing we'll need to do is create a new role.</p>
 <p>There seems to be two ways to go about this. One way is to create the role within your CloudFormation template and the other is to use the <code>aws iam</code> command. The latter option seems a bit manual. Why not include it in the CloudFormation template so we can make it repeatable?</p>
 <p>To create a key use this command:</p>
-<pre><code>aws ec2 create-key-pair \
-    --key-name MyKeyPair \
-    --query 'KeyMaterial' \
-    --output text &gt; MyKeyPair.pem
-</code></pre>
 <h3>Notes and next steps</h3>
 <p>To do<br />
 - Secure the EC2 with IAM and some pem keys<br />
@@ -160,12 +155,79 @@ $ aws cloudformation deploy
 <li>IAM::InstanceProfile</li>
 </ol>
 <p>In this order it might be easier to digest.</p>
+<p>In that spirit, here is the rewrite.</p>
 <hr />
-<h2>Installing Boto3</h2>
-<p>These are boto3 installation instructions...</p>
-<hr />
-<h2>Hello-world for Boto3</h2>
-<p>Here's how to run the same CloudFormation template from a Python script.</p>
+<h3>First steps with the cli</h3>
+<p>One of the simplest things you can do is create a key pair. For those completely new to AWS, key pairs are used to connect to an EC2 instance securely. The CLI has a command for this.</p>
+<pre><code>aws ec2 create-key-pair \
+    --key-name MyKeyPair \
+    --query 'KeyMaterial' \
+    --output text &gt; MyKeyPair.pem
+</code></pre>
+<p>It looks like there are a lot of flags here. They are all necessary. The <code>create-key-pair</code> command creates the key and keeps it somewhere you can access it from your AWS account. The <code>--key-name</code> is required so you can identify the key. The command will return a few different parts of the key including the fingerprint and name etc. in json format. You don't need all that. You just need the KeyMaterial, hence the <code>--query</code> flag.finally, you need to store the key on your machine so you can use it to log in to your instance. The <code>--output</code> flag ensures you receive the KeyMaterial in the proper format. Finally, if you're not familiar with bash, this line</p>
+<pre><code>... &gt; MyKeyPair.pem
+</code></pre>
+<p>just takes the output of the previous command and creates a new file with the content. This way, you have a key ready to use.</p>
+<h4>Start an EC2 Instance</h4>
+<p>Funny enough,</p>
+<pre><code>$ aws ec2 instance create   # This doesn't exist
+</code></pre>
+<p>You need a little more information. A great way to provide this information is in a json document.</p>
+<pre><code>// automate-things.json
+{
+    "Resources" : {
+        "HelloT2micro" : {
+            "Type" : "AWS::EC2::Instance",
+            "Properties" : {
+                "InstanceType" : "t2.micro",
+                "ImageId" : "ami-4836a428",
+                "KeyName": "the-rug",
+                "Tags" : [ {"Key":"Name", "Value":"El tagerino"} ]
+            }
+        }
+    }
+}
+</code></pre>
+<p>These are some of the options you can set when you're using the AWS gui. Now you can say goodbye to slow page loads and mouse clicks on menus. To start your instance</p>
+<pre><code>$ aws cloudformation deploy \
+    --template-file automate-things.json \
+    --stack-name ec2only
+</code></pre>
+<p>If all goes well, you should be able to go to your AWS console's CloudFormation panel and see the resource spin up.</p>
+<p>If you try to connect to it you'll notice you don't have access.</p>
+<pre><code>$ ssh -i MyKeyPair.pem ec2-user@&lt;public ip address&gt;
+</code></pre>
+<p>And that's because you haven't told the instance which key pair it can use. For that you'll need a security group. At this time I'd like to point you to the complete CloudFormation template. I won't be copying all the code in each example.</p>
+<pre><code>// automation-things.json
+
+// add the security group and 
+// adjust the EC2 config
+</code></pre>
+<p>Ok now we have an EC2 instance and a security group. You can connect to the instance. That's an easy demo, but I promised a little IAM so I'll add a bucket to show this.</p>
+<pre><code>// automate-things.json
+
+// Add the bucket
+</code></pre>
+<p>Ok so we have a bucket and an EC2 instance. You'll notice that if you log in to the EC2 instance you can't see anything in the bucket. And that is a good thing. If someone hacks into the instance you don't want them to also have access to your data.</p>
+<pre><code>$ aws s3 ls
+# access denied message
+</code></pre>
+<p>Ok, so how do we manage these permissions? Should we add a user? or a group? No! IAM has this thing called roles. And the way they work is like hats. The role can be assumed by any user or group or, in this case, a resource. You can easily have a resource assume a role when it needs extra permissions and revoke the role once it's done. Ok enough theory let's see something happen.</p>
+<p>We'll need to create the role. In this case we'll just add it to our template.</p>
+<pre><code>// automate-things.json
+// add the role
+</code></pre>
+<p>This will not work.</p>
+<p>You will notice the role definition has this line with the word "Principal". And that "Principal" is a "Service". And that "Service" is EC2.</p>
+<p>Ok we're done, let's run it. Not so fast. We are telling AWS that this role is only to be used by EC2 instances. But you have to add something called an InstanceProfile. For more information on how that works, see the documentation. Long story short, your instance needs to have an InstanceProfile that tells it what roles it has available. This way you can assign it more roles as needed.</p>
+<pre><code>// automate-things.json
+// add the InstanceProfile
+</code></pre>
+<p>Now when you run this you can log in to your EC2, you can see your bucket and your EC2 can see your bucket.</p>
+<pre><code>$ aws s3 ls
+# list of buckets
+</code></pre>
+<p>This concludes our demo for today.</p>
             <!--
             -->
 	    </div>
