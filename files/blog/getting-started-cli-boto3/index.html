@@ -150,6 +150,14 @@ $ aws cloudformation deploy
 - Secure the EC2 with IAM and some pem keys<br />
 - Create a pem key
 - Include the pem key in the CloudFormation template for the EC2 instance </p>
+<p>Order of operations...</p>
+<p>The flow of the article is not ideal at the moment. Perhaps I can add chucks to the CF template in this order:
+1. EC2
+2. S3
+3. Security Group (Key pair)
+4. IAM::Role
+5. IAM::InstanceProfile</p>
+<p>In this order it might be easier to digest.</p>
 <hr />
 <h2>Installing Boto3</h2>
 <p>These are boto3 installation instructions...</p>
