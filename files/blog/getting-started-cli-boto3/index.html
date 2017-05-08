@@ -38,7 +38,7 @@
         </div>
         <div id="navbar" class="collapse navbar-collapse">
           <ul class="nav navbar-nav">
-              <li><a href="/posts/">Blog</a></li>
+              <li><a href="/blog/">Blog</a></li>
               <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">More stuff<span class="caret"></span></a>
               <ul class="dropdown-menu">
@@ -115,7 +115,7 @@ $ aws cloudformation deploy
 <pre><code>$ aws cloudformation delete-stack
     --stack-name helloBucketStack
 </code></pre>
-<p>Let's go back to the template and add a resource. You will notice that I've added a "<a href="http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-instance.html#aws-resource-ec2-instance-syntax" title="EC2 Syntax">Properties</a>" list. These are the two required properties for an EC2 instance to launch. If you do not include them, your stack will begin to launch, but it will fail and eventually it will be rolled back.</p>
+<p>Let's go back to the template and add a resource. You will notice that I've added a "<a href="http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-instance.html#aws-resource-ec2-instance-syntax" title="EC2 Syntax">Properties</a>" list. These are the two required properties for an EC2 instance to launch. If you do not include them, your stack will begin to launch, but it will fail and eventually it will be rolled back. The tag property is not required but it's always nice to name your stuff.</p>
 <pre><code>// file: hello-bucket.json
 {
     "Resources" : {
@@ -127,16 +127,28 @@ $ aws cloudformation deploy
             "Properties" : {
                 "InstanceType" : "t2.micro",
                 "ImageId" : "ami-efd0428f"
+                "Tags" : [ {"Key":"Name", "Value":"El tagerino"} ]
             }
         }
     }
 }
 </code></pre>
 <p>The ImageId I'm using here is the Ubuntu 16.04 image for us-west-2 (citation needed).</p>
+<hr />
+<h3>Basic security with IAM Roles</h3>
+<p>You might say, well that's not secure at all. Let's add some roles to that. The first thing we'll need to do is create a new role.</p>
+<p>There seems to be two ways to go about this. One way is to create the role within your CloudFormation template and the other is to use the <code>aws iam</code> command. The latter option seems a bit manual. Why not include it in the CloudFormation template so we can make it repeatable?</p>
+<p>To create a key use this command:</p>
+<pre><code>aws ec2 create-key-pair \
+    --key-name MyKeyPair \
+    --query 'KeyMaterial' \
+    --output text &gt; MyKeyPair.pem
+</code></pre>
 <h3>Notes and next steps</h3>
 <p>To do<br />
-- Secure the S3 with IAM roles <br />
-- Secure the EC2 with IAM and some pem keys  </p>
+- Secure the EC2 with IAM and some pem keys<br />
+- Create a pem key
+- Include the pem key in the CloudFormation template for the EC2 instance </p>
 <hr />
 <h2>Installing Boto3</h2>
 <p>These are boto3 installation instructions...</p>
