@@ -181,7 +181,7 @@ $ aws cloudformation deploy
             "Properties" : {
                 "InstanceType" : "t2.micro",
                 "ImageId" : "ami-4836a428",
-                "KeyName": "the-rug",
+                "KeyName": "MyKeyPair",
                 "Tags" : [ {"Key":"Name", "Value":"El tagerino"} ]
             }
         }
@@ -197,29 +197,174 @@ $ aws cloudformation deploy
 <p>If you try to connect to it you'll notice you don't have access.</p>
 <pre><code>$ ssh -i MyKeyPair.pem ec2-user@&lt;public ip address&gt;
 </code></pre>
-<p>And that's because you haven't told the instance which key pair it can use. For that you'll need a security group. At this time I'd like to point you to the complete CloudFormation template. I won't be copying all the code in each example.</p>
+<p>And that's because you have the key pair, but no security group. But that's easy to add. Note that we create the security group and update the EC2 instance definition.</p>
 <pre><code>// automation-things.json
-
-// add the security group and 
-// adjust the EC2 config
+{
+    "Resources" : {
+        "HelloT2micro" : {
+            "Type" : "AWS::EC2::Instance",
+            "Properties" : {
+                "InstanceType" : "t2.micro",
+                "ImageId" : "ami-4836a428",
+                "SecurityGroups": [ "the-money-sg" ],
+                "KeyName": "MyKeyPair",
+                "Tags" : [ {"Key":"Name", "Value":"El tagerino"} ]
+            }
+        },
+        "HelloSecurityGroup": {
+            "Type": "AWS::EC2::SecurityGroup",
+            "Properties": {
+                "GroupName": "the-money-sg",
+                "GroupDescription": "Equal access for all",
+                "SecurityGroupIngress": [ {
+                    "IpProtocol": "tcp",
+                    "FromPort": "22",
+                    "ToPort": "22",
+                    "CidrIp": "0.0.0.0/0"
+                } ]
+            }
+        }
+    }
+}
 </code></pre>
-<p>Ok now we have an EC2 instance and a security group. You can connect to the instance. That's an easy demo, but I promised a little IAM so I'll add a bucket to show this.</p>
+<p>Now, without tearing down the old instance, we use the same deploy command</p>
+<pre><code>$ aws cloudformation deploy \
+    --template-file automate-things.json \
+    --stack-name ec2only
+</code></pre>
+<p>You will see in the CloudFormation console that the stack is updating.</p>
+<pre><code>$ ssh -i bar.pem ec2-user@35.167.202.35
+... # skipped a few lines
+
+       __|  __|_  )
+       _|  (     /   Amazon Linux AMI
+      ___|\___|___|
+
+https://aws.amazon.com/amazon-linux-ami/2017.03-release-notes/
+6 package(s) needed for security, out of 6 available
+Run "sudo yum update" to apply all updates.
+[ec2-user@ip-172-31-21-130 ~]$
+</code></pre>
+<p>And you can connect to the instance. That's an easy demo, but I promised a little IAM so I'll add a bucket to show this.</p>
 <pre><code>// automate-things.json
-
-// Add the bucket
+{
+    "Resources" : {
+        "HelloT2micro" : {
+            "Type" : "AWS::EC2::Instance",
+            "Properties" : {
+                "InstanceType" : "t2.micro",
+                "ImageId" : "ami-4836a428",
+                "SecurityGroups": [ "the-money-sg" ],
+                "KeyName": "MyKeyPair",
+                "Tags" : [ {"Key":"Name", "Value":"El tagerino"} ]
+            }
+        },
+        "HelloSecurityGroup": {
+            "Type": "AWS::EC2::SecurityGroup",
+            "Properties": {
+                "GroupName": "the-money-sg",
+                "GroupDescription": "Equal access for all",
+                "SecurityGroupIngress": [ {
+                    "IpProtocol": "tcp",
+                    "FromPort": "22",
+                    "ToPort": "22",
+                    "CidrIp": "0.0.0.0/0"
+                } ]
+            }
+        },
+        "HelloBucket" : {
+            "Type" : "AWS::S3::Bucket",
+            "Properties": {
+                "BucketName": "treehorn12345"
+            }
+        }
+    }
+}
 </code></pre>
-<p>Ok so we have a bucket and an EC2 instance. You'll notice that if you log in to the EC2 instance you can't see anything in the bucket. And that is a good thing. If someone hacks into the instance you don't want them to also have access to your data.</p>
-<pre><code>$ aws s3 ls
-# access denied message
+<p>Run the same deploy command as above.</p>
+<p>Ok so we have a bucket and an EC2 instance. You'll notice that if you log in to the EC2 instance you can't see anything in the bucket. </p>
+<pre><code>[ec2-user@ip-172-31-21-130 ~]$ aws s3 ls
+Unable to locate credentials. You can configure credentials by running "aws configure".
 </code></pre>
+<p>That is a good thing. If someone hacks into the instance you don't want them to also have access to your data.</p>
 <p>Ok, so how do we manage these permissions? Should we add a user? or a group? No! IAM has this thing called roles. And the way they work is like hats. The role can be assumed by any user or group or, in this case, a resource. You can easily have a resource assume a role when it needs extra permissions and revoke the role once it's done. Ok enough theory let's see something happen.</p>
 <p>We'll need to create the role. In this case we'll just add it to our template.</p>
 <pre><code>// automate-things.json
-// add the role
+{
+    "Resources" : {
+        "HelloT2micro" : {
+            "Type" : "AWS::EC2::Instance",
+            "Properties" : {
+                "InstanceType" : "t2.micro",
+                "ImageId" : "ami-4836a428",
+                "SecurityGroups": [ "the-money-sg" ],
+                "KeyName": "MyKeyPair",
+                "Tags" : [ {"Key":"Name", "Value":"El tagerino"} ]
+            }
+        },
+        "TheMoney": {
+            "Type": "AWS::EC2::SecurityGroup",
+            "Properties": {
+                "GroupName": "the-money-sg",
+                "GroupDescription": "Equal access for all",
+                "SecurityGroupIngress": [ {
+                    "IpProtocol": "tcp",
+                    "FromPort": "22",
+                    "ToPort": "22",
+                    "CidrIp": "0.0.0.0/0"
+                } ]
+            }
+        },
+        "HelloBucket" : {
+            "Type" : "AWS::S3::Bucket",
+            "Properties": {
+                "BucketName": "treehorn12345"
+            }
+        },
+        "HelloIAM" : {
+            "Type" : "AWS::IAM::Role",
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Statement": [ {
+                        "Effect": "Allow",
+                        "Principal": {
+                            "Service": [ "ec2.amazonaws.com" ]
+                        },
+                        "Action": [ "sts:AssumeRole" ]
+                    } ]
+                },
+                "Path": "/",
+                "Policies": [ {
+                    "PolicyName": "lebowski",
+                    "PolicyDocument": {
+                        "Statement": [ {
+                            "Effect": "Allow",
+                            "Action": [
+                                "s3:ListAllMyBuckets",
+                                "s3:ListBucket"
+                            ],
+                            "Resource": "*"
+                        } ]
+                    }
+                } ]
+            }
+        }
+    }
+}
 </code></pre>
-<p>This will not work.</p>
-<p>You will notice the role definition has this line with the word "Principal". And that "Principal" is a "Service". And that "Service" is EC2.</p>
-<p>Ok we're done, let's run it. Not so fast. We are telling AWS that this role is only to be used by EC2 instances. But you have to add something called an InstanceProfile. For more information on how that works, see the documentation. Long story short, your instance needs to have an InstanceProfile that tells it what roles it has available. This way you can assign it more roles as needed.</p>
+<p>We have added an IAM role that says,</p>
+<ul>
+<li>The principal must be an EC2 instance</li>
+<li>The policies allowed are the listing of buckets</li>
+</ul>
+<p>But you will get an error when you try to deploy. You need to adjust your deploy command to this</p>
+<pre><code>$ aws cloudformation deploy \
+    --template-file automate-things.json \
+    --stack-name ec2only \
+    --capabilities CAPABILITY_IAM
+</code></pre>
+<p>Ok we're done, let's run it. You can try the <code>aws s3 ls</code> command to list all the buckets, but you will get the same <code>Unable to find credentials</code> message as before. </p>
+<p>We are telling AWS that this role is only to be used by EC2 instances. But you have to add something else called an InstanceProfile. For more information on how that works, see the documentation. Long story short, your instance needs to have an InstanceProfile that tells it what roles it has available. This way you can assign it more roles as needed.</p>
 <pre><code>// automate-things.json
 // add the InstanceProfile
 </code></pre>
