@@ -60,11 +60,83 @@
     <div class="container">
         <div class="row">
 	    <div class="col-xs-8 col-sm-8 col-lg-8">
-            <h1>Intro</h1>
-            <p class="lead">1 May 2017</p>
+            <h1>The AWS CLI Intro</h1>
+            <p class="lead">14 May 2017</p>
             <hr>
-            <h2>This is my blog</h2>
-<p>I'll share things with other devs here.  And this is my first post. Go ahead and read some of the other posts!</p>
+            <h2>Getting started with the AWS CLI</h2>
+<p>Outline:</p>
+<ul>
+<li>Set up a new user</li>
+<li>Give ec2 and s3 permissions</li>
+<li>Create keys</li>
+<li>Spin up Amazon Linux AMI</li>
+<li>Create security group</li>
+<li>SSH into instance</li>
+<li>Create a bucket with the CLI</li>
+</ul>
+<hr />
+<h2>Install the CLI</h2>
+<p>Prerequisite for this tutorial is <a href="http://docs.aws.amazon.com/cli/latest/userguide/installing.html" title="Installation instructions">installing the AWS Command Line Interface</a>.</p>
+<hr />
+<h2>Set up a new user in the GUI</h2>
+<ol>
+<li>First go to the IAM section of AWS and click on "Add user".</li>
+<li>Enter a name. For this tutorial I'll use the name "new_user".</li>
+<li>Check the boxes for "Programatic access" and "AWS Management Console access".</li>
+<li>For <strong>Console password</strong> pick "Custom password" and remember it. We'll need it for the rest of this tutorial.</li>
+<li>For this tutorial it's easier if you do not check the <strong>Require password reset</strong> box.</li>
+<li>Click <strong>Next permissions</strong></li>
+<li>Click <strong>Create group</strong>. We'll use "new_group" for the name.</li>
+<li>In the search box type in "ec2full". You should see the "AmazonEC2FullAccess" policy appear. Check the box.</li>
+<li>In the search box type in "s3full". You should see the "AmazonS3FullAccess" policy appear. Check the box.</li>
+<li>Click <strong>Create group</strong>. The "new_group" should be selected.</li>
+<li>Click <strong>Next: Review</strong></li>
+<li>Create the user.</li>
+<li><strong>IMPORTANT:</strong> Download the access keys using the <strong>Download .csv</strong> button.</li>
+<li>Save the sign-in link that appears in the green <em>Success</em> box.</li>
+</ol>
+<hr />
+<h2>Set up a new user with the CLI</h2>
+<pre><code>$ aws iam create-group --group-name bowling
+
+$ aws iam attach-group-policy
+    --group-name bowling
+    --policy-arn arn:aws:iam::aws:policy/AmazonEC2FullAccess
+
+$ aws iam attach-group-policy
+    --group-name bowling
+    --policy-arn arn:aws:iam::aws:policy/AmazonS3FullAccess
+
+$ aws iam create-user --user-name dude
+
+$ aws iam add-user-to-group --user-name dude --group-name bowling
+
+$ aws iam get-group --group-name bowling
+
+$ aws iam list-attached-group-policies --group-name bowling
+
+$ aws iam create-login-profile --user-name dude --password weakpassword1
+
+$ aws iam create-access-key --user-name dude &gt; spam
+
+######
+# &lt;optional&gt;
+
+$ sudo apt-get install jq
+$ cat spam | jq '.'
+
+# &lt;/optional&gt;
+######
+
+######
+# &lt;points class="bonus"&gt;
+
+$ aws iam list-policies &gt; foo
+$ cat foo | jq '.Policies[] | .Arn' | grep FullAccess &gt; bar
+
+# &lt;/points&gt;
+######
+</code></pre>
             <!--
             -->
 	    </div>

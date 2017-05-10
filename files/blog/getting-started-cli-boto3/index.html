@@ -83,81 +83,7 @@ $ export PATH=~/.local/bin:$PATH
 </code></pre>
 <p>Where <code>&lt;installation directory&gt;</code> is <a href="http://docs.aws.amazon.com/cli/latest/userguide/cli-command-completion.html#cli-command-completion-completer" title="Locate the AWS Completer">the directory where pip installed the AWS CLI</a>. I happen to be using the zsh completer and I didn't run into any issues with the instructions on the AWS <a href="http://docs.aws.amazon.com/cli/latest/userguide/cli-command-completion.html" title="AWS CLI autocompletion guide">autocompletion Docs</a>.</p>
 <hr />
-<h2>First steps with the CLI</h2>
-<p>What you'll get out of this tutorial is a hello-world type automation script. We'll be creating an EC2 instance and an S3 bucket. Then we'll add some IAM security controls on them.</p>
-<p>Funny enough, you can't just do something like</p>
-<pre><code>$ aws EC2 launch instance
-</code></pre>
-<p>That does not exist. We will have to write a <a href="https://aws.amazon.com/documentation/cloudformation/" title="CloudFormation Docs">CloudFormation</a> template. These are json or yaml files that describe the resources you want to launch in AWS. Get your favorite editor and write this:</p>
-<pre><code>// file: hello-bucket.json
-{
-    "Resources" : {
-        "HelloBucket" : {
-            "Type" : "AWS::S3::Bucket"
-        }
-    }
-}
-</code></pre>
-<p>Here, you are defining a resource and its name is HelloBucket. It is an S3 bucket. We can now use the CLI to launch this.</p>
-<p>You will want to see what's going on here. Before you do anything, open up your AWS console. I'm assuming you know how to navigate it. In the Services dropdown under Storage, pick S3. Notice how nothing there is named HelloBucket.</p>
-<p>Now enter the following command. Make sure you're in the directory that contains the file.</p>
-<pre><code># Line breaks included for clarity.
-# Don't include them in your terminal.
-
-$ aws cloudformation deploy
-    --template-file hello-bucket.json
-    --stack-name helloBucketStack
-</code></pre>
-<p>It will take a minute to set things up, but once it's done, click the circular refresh arrows on the AWS S3 page. You should see something like <code>hellobucketstack-hellobucket-1imwav37498hg</code>.</p>
-<p>The beauty of this is that AWS treats this bucket as part of a template. If you tear down the template, you tear down everyting. (You can choose to keep buckets when taking down a CloudFormation template, but that's outside the scope of this article.)</p>
-<pre><code>$ aws cloudformation describe-stacks
-</code></pre>
-<p>This will show you some descriptive things about your stack. If your stack failed to complete, you'll see some helpful hints in the output. For now, let's get rid of it and create something new.</p>
-<pre><code>$ aws cloudformation delete-stack
-    --stack-name helloBucketStack
-</code></pre>
-<p>Let's go back to the template and add a resource. You will notice that I've added a "<a href="http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-instance.html#aws-resource-ec2-instance-syntax" title="EC2 Syntax">Properties</a>" list. These are the two required properties for an EC2 instance to launch. If you do not include them, your stack will begin to launch, but it will fail and eventually it will be rolled back. The tag property is not required but it's always nice to name your stuff.</p>
-<pre><code>// file: hello-bucket.json
-{
-    "Resources" : {
-        "HelloBucket" : {
-            "Type" : "AWS::S3::Bucket"
-        },
-        "HelloT2micro" : {
-            "Type" : "AWS::EC2::Instance",
-            "Properties" : {
-                "InstanceType" : "t2.micro",
-                "ImageId" : "ami-efd0428f"
-                "Tags" : [ {"Key":"Name", "Value":"El tagerino"} ]
-            }
-        }
-    }
-}
-</code></pre>
-<p>The ImageId I'm using here is the Ubuntu 16.04 image for us-west-2 (citation needed).</p>
-<hr />
-<h3>Basic security with IAM Roles</h3>
-<p>You might say, well that's not secure at all. Let's add some roles to that. The first thing we'll need to do is create a new role.</p>
-<p>There seems to be two ways to go about this. One way is to create the role within your CloudFormation template and the other is to use the <code>aws iam</code> command. The latter option seems a bit manual. Why not include it in the CloudFormation template so we can make it repeatable?</p>
-<p>To create a key use this command:</p>
-<h3>Notes and next steps</h3>
-<p>To do<br />
-- Secure the EC2 with IAM and some pem keys<br />
-- Create a pem key
-- Include the pem key in the CloudFormation template for the EC2 instance </p>
-<p>Order of operations...</p>
-<p>The flow of the article is not ideal at the moment. Perhaps I can add chucks to the CF template in this order:</p>
-<ol>
-<li>EC2</li>
-<li>S3</li>
-<li>Security Group (Key pair)</li>
-<li>IAM::Role</li>
-<li>IAM::InstanceProfile</li>
-</ol>
-<p>In this order it might be easier to digest.</p>
-<p>In that spirit, here is the rewrite.</p>
-<hr />
-<h3>First steps with the cli</h3>
+<h2>First steps with the cli</h2>
 <p>One of the simplest things you can do is create a key pair. For those completely new to AWS, key pairs are used to connect to an EC2 instance securely. The CLI has a command for this.</p>
 <pre><code>aws ec2 create-key-pair \
     --key-name MyKeyPair \
@@ -168,7 +94,6 @@ $ aws cloudformation deploy
 <pre><code>... &gt; MyKeyPair.pem
 </code></pre>
 <p>just takes the output of the previous command and creates a new file with the content. This way, you have a key ready to use.</p>
-<h4>Start an EC2 Instance</h4>
 <p>Funny enough,</p>
 <pre><code>$ aws ec2 instance create   # This doesn't exist
 </code></pre>
@@ -182,7 +107,7 @@ $ aws cloudformation deploy
                 "InstanceType" : "t2.micro",
                 "ImageId" : "ami-4836a428",
                 "KeyName": "MyKeyPair",
-                "Tags" : [ {"Key":"Name", "Value":"El tagerino"} ]
+                "Tags" : [ {"Key":"Name", "Value":"El Duderino"} ]
             }
         }
     }
@@ -208,7 +133,7 @@ $ aws cloudformation deploy
                 "ImageId" : "ami-4836a428",
                 "SecurityGroups": [ "the-money-sg" ],
                 "KeyName": "MyKeyPair",
-                "Tags" : [ {"Key":"Name", "Value":"El tagerino"} ]
+                "Tags" : [ {"Key":"Name", "Value":"El Duderino"} ]
             }
         },
         "HelloSecurityGroup": {
@@ -256,7 +181,7 @@ Run "sudo yum update" to apply all updates.
                 "ImageId" : "ami-4836a428",
                 "SecurityGroups": [ "the-money-sg" ],
                 "KeyName": "MyKeyPair",
-                "Tags" : [ {"Key":"Name", "Value":"El tagerino"} ]
+                "Tags" : [ {"Key":"Name", "Value":"El Duderino"} ]
             }
         },
         "HelloSecurityGroup": {
@@ -299,10 +224,10 @@ Unable to locate credentials. You can configure credentials by running "aws conf
                 "ImageId" : "ami-4836a428",
                 "SecurityGroups": [ "the-money-sg" ],
                 "KeyName": "MyKeyPair",
-                "Tags" : [ {"Key":"Name", "Value":"El tagerino"} ]
+                "Tags" : [ {"Key":"Name", "Value":"El Duderino"} ]
             }
         },
-        "TheMoney": {
+        "HelloSecurityGroup": {
             "Type": "AWS::EC2::SecurityGroup",
             "Properties": {
                 "GroupName": "the-money-sg",
@@ -363,10 +288,87 @@ Unable to locate credentials. You can configure credentials by running "aws conf
     --stack-name ec2only \
     --capabilities CAPABILITY_IAM
 </code></pre>
-<p>Ok we're done, let's run it. You can try the <code>aws s3 ls</code> command to list all the buckets, but you will get the same <code>Unable to find credentials</code> message as before. </p>
-<p>We are telling AWS that this role is only to be used by EC2 instances. But you have to add something else called an InstanceProfile. For more information on how that works, see the documentation. Long story short, your instance needs to have an InstanceProfile that tells it what roles it has available. This way you can assign it more roles as needed.</p>
+<p>Ok we're done, let's run it. You can try the <code>aws s3 ls</code> command to list all the buckets, but you will get the same <code>Unable to find credentials</code> message as before because we are missing one last thing.</p>
+<p>The way AWS is designed, we need two IAM components in order to assign permissions to an EC2 instance. The <code>AWS::IAM::Role</code> is the first, but we also need the <code>AWS::IAM::InstanceProfile</code>. And this is really useful, because it allows you to update the roles without having to create a whole new instance.</p>
+<p>A little tangent here. When we update our instance with the <code>aws cloudformation deploy</code> command, AWS does not go in and install stuff. It creates a whole new instance and deletes the old one. All of this is invisible to you as a user as it happens in the background.</p>
+<p>But not all updates to your stack warrant a new instance. For example, when we added the S3 bucket, AWS did not have to do it. When we added the security group, we also added the key. This was new for the instance so AWS created a new one. You can see each step with a simple command</p>
+<pre><code>$ aws cloudformation describe-stack 
+    --stackname ec2only &gt; foo
+$ less foo
+</code></pre>
+<p>So when we add the <code>AWS::IAM::InstanceProfile</code> we also update the instance to know that it should look for its IAM permissions in that InstanceProfile.</p>
 <pre><code>// automate-things.json
-// add the InstanceProfile
+{
+    "Resources" : {
+        "HelloT2micro" : {
+            "Type" : "AWS::EC2::Instance",
+            "Properties" : {
+                "InstanceType" : "t2.micro",
+                "ImageId" : "ami-4836a428",
+                "SecurityGroups": [ "the-money-sg" ],
+                "IamInstanceProfile": "HelloInstanceProfile",
+                "KeyName": "MyKeyPair",
+                "Tags" : [ {"Key":"Name", "Value":"El Duderino"} ]
+            }
+        },
+        "HelloSecurityGroup": {
+            "Type": "AWS::EC2::SecurityGroup",
+            "Properties": {
+                "GroupName": "the-money-sg",
+                "GroupDescription": "Equal access for all",
+                "SecurityGroupIngress": [ {
+                    "IpProtocol": "tcp",
+                    "FromPort": "22",
+                    "ToPort": "22",
+                    "CidrIp": "0.0.0.0/0"
+                } ]
+            }
+        },
+        "HelloBucket" : {
+            "Type" : "AWS::S3::Bucket",
+            "Properties": {
+                "BucketName": "treehorn12345"
+            }
+        },
+        "HelloIAM" : {
+            "Type" : "AWS::IAM::Role",
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Statement": [ {
+                        "Effect": "Allow",
+                        "Principal": {
+                            "Service": [ "ec2.amazonaws.com" ]
+                        },
+                        "Action": [ "sts:AssumeRole" ]
+                    } ]
+                },
+                "Path": "/",
+                "Policies": [ {
+                    "PolicyName": "lebowski",
+                    "PolicyDocument": {
+                        "Statement": [ {
+                            "Effect": "Allow",
+                            "Action": [
+                                "s3:ListAllMyBuckets",
+                                "s3:ListBucket"
+                            ],
+                            "Resource": "*"
+                        } ]
+                    }
+                } ]
+            }
+        },
+        "HelloInstanceProfile": {
+            "Type": "AWS::IAM::InstanceProfile",
+            "Properties": {
+                "Roles": [ {
+                    "Ref": "HelloIAM"
+                } ],
+                "InstanceProfileName": "HIPname"
+            }
+        }
+    }
+}
 </code></pre>
 <p>Now when you run this you can log in to your EC2, you can see your bucket and your EC2 can see your bucket.</p>
 <pre><code>$ aws s3 ls
