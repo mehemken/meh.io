@@ -120,22 +120,16 @@ $ aws iam create-login-profile --user-name dude --password weakpassword1
 $ aws iam create-access-key --user-name dude &gt; spam
 
 ######
-# &lt;optional&gt;
+# Extra credit...
+# How did you know what the arn
+# was for those policies??
 
 $ sudo apt-get install jq
 $ cat spam | jq '.'
 
-# &lt;/optional&gt;
-######
-
-######
-# &lt;points class="bonus"&gt;
-
 $ aws iam list-policies &gt; foo
 $ cat foo | jq '.Policies[] | .Arn' | grep FullAccess &gt; bar
-
-# &lt;/points&gt;
-######
+$ less bar  #use keys j and k to navigate up and down
 </code></pre>
             <!--
             -->
