@@ -66,17 +66,18 @@
     <h2>Getting started with the AWS CLI</h2>
 <p>Outline:</p>
 <ul>
-<li>Set up a new user</li>
-<li>Give ec2 and s3 permissions</li>
-<li>Create keys</li>
+<li>Set up a new user (gui)</li>
 <li>Spin up Amazon Linux AMI</li>
-<li>Create security group</li>
 <li>SSH into instance</li>
+<li>Set up a new user (CLI)</li>
 <li>Create a bucket with the CLI</li>
+<li>Clean up</li>
 </ul>
+<p>In this article you will set up a new user with limited privilages. Why? So you're not always usint the root user with full privilages.</p>
+<p>First we will set up a new user using the AWS gui. We'll assign the right permissions so this new user can use the CLI. Then we'll use the new user to do the same thing.</p>
 <hr />
 <h2>Install the CLI</h2>
-<p>Prerequisite for this tutorial is <a href="http://docs.aws.amazon.com/cli/latest/userguide/installing.html" title="Installation instructions">installing the AWS Command Line Interface</a>.</p>
+<p>If you'd like to skip straight to the CLI part, you can just <a href="http://docs.aws.amazon.com/cli/latest/userguide/installing.html" title="Installation instructions">install the AWS Command Line Interface</a> on your machine.</p>
 <hr />
 <h2>Set up a new user in the GUI</h2>
 <ol>
@@ -95,6 +96,27 @@
 <li><strong>IMPORTANT:</strong> Download the access keys using the <strong>Download .csv</strong> button.</li>
 <li>Save the sign-in link that appears in the green <em>Success</em> box.</li>
 </ol>
+<p>If you do not download the access keys when prompted, you will not have programatic access for this user. The keys will never be displayed again. If you forgot to download them, just delete the user and start over.</p>
+<hr />
+<h2>Spin up an Amazon Linux AMI</h2>
+<p>Why Amazon Linux? Because it comes with the AWS CLI preinstalled. If you've never done this before, there are a few points to be aware of in this process.</p>
+<p>The first is that AWS separates the EC2 resource from the definition of web traffic. This means you will have to set up two things</p>
+<ul>
+<li>EC2</li>
+<li>Security Group</li>
+</ul>
+<p>The security group will allow you to define an SSH rule. Without this rule you won't be able to log in to your instance and have access to the shell.</p>
+<p>The second point is that you are going to need <code>.pem</code> (or <code>.ppk</code> for Windows users) keys to access your instance. These will be available for download only once and if you forget to download them you will have delete your instance and spin up a new one. This will happen just before you click the final create button.</p>
+<p>To set up your instance follow this <a href="https://aws.amazon.com/getting-started/tutorials/launch-a-virtual-machine/">10 min</a> tutorial. If you're on Windows I recommend you connect to your instance <a href="http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/putty.html">like so</a>. If you're on linux</p>
+<pre><code>ssh -i &lt;path to MyNewKey.pem&gt; ec2-user@&lt;public ip&gt;
+</code></pre>
+<hr />
+<h2>Configure your CLI</h2>
+<p>The first thing you will need to do once you're logged in to the instance is to set up your CLI with the new user's credentials.</p>
+<pre><code>$ aws configure
+</code></pre>
+<p>You will need the access keys you downloaded as a <code>.csv</code> file earlier. <strong>Make sure you enter the same region you're using in the console.</strong> My default was <code>us-west-2</code>. More info on configuring your cli <a href="http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html">here</a>.</p>
+<p>Now we'll set up a new user with the CLI.</p>
 <hr />
 <h2>Set up a new user with the CLI</h2>
 <pre><code>$ aws iam create-group --group-name bowling
@@ -118,19 +140,22 @@ $ aws iam list-attached-group-policies --group-name bowling
 $ aws iam create-login-profile --user-name dude --password weakpassword1
 
 $ aws iam create-access-key --user-name dude &gt; spam
-
-######
-# Extra credit...
-# How did you know what the arn
-# was for those policies??
-
-$ sudo apt-get install jq
+</code></pre>
+<p>You might be asking, where did you get the arn for the permissions? And what the heck is an <a href="http://docs.aws.amazon.com/general/latest/gr/aws-arns-and-namespaces.html">arn</a> anyway?</p>
+<pre><code>$ sudo apt-get install jq
 $ cat spam | jq '.'
 
 $ aws iam list-policies &gt; foo
 $ cat foo | jq '.Policies[] | .Arn' | grep FullAccess &gt; bar
-$ less bar  #use keys j and k to navigate up and down
 </code></pre>
+<p>Using <a href="https://stedolan.github.io/jq/" title="sed for json">jq</a> is outside the scope of this tutorial. But it is amazing.</p>
+<hr />
+<h2>Set up a bucket</h2>
+<p>Content coming soon.</p>
+<hr />
+<h2>Conclusion</h2>
+<p>We've set up a user in two different ways. I'd argue that the CLI version was much more pleasant because menus and buttons were completely absent. If you'd like to explore the CLI more just add the <code>help</code> option to the command you'd like to use. For example if you want to explore what the CLI can do with EC2, you can use <code>aws ec2 help</code>. You can navigate the resulting menu using the keys <code>j</code> and <code>k</code> and search the document usint <code>/&lt;search term&gt;</code>. For those unfamiliar with this, it's like using <a href="https://linux.die.net/man/1/less">less</a>.</p>
+<hr />
 
 	    </div>
             <div class="col-xs-4 col-sm-4 col-lg-4">
@@ -143,13 +168,7 @@ $ less bar  #use keys j and k to navigate up and down
     <footer class="footer">
       <div class="container">
 	  <div class="row">
-	    <div class="col-xs-4">
-		<p class="text-muted"><span class="glyphicon glyphicon-copyright-mark"></span> M. Hemken 2017</p>
-	    </div>
-	    <div class="col-xs-4">
-                <p class="text-muted"><a href=""><span class="glyphicon glyphicon-download"></span> Resume</a></p>
-	    </div>
-	    <div class="col-xs-4"></div>
+	      <p class="text-muted"><a href="/static/resume/resume.pdf"><span class="glyphicon glyphicon-copyright-mark"></span> M. Hemken 2017</a></p>
 	  </div>
       </div>
     </footer>
