@@ -12,7 +12,11 @@ code {
 }
 pre {
     font-size: medium;
-    overflow: auto !important;
+}
+
+pre code {
+    word-wrap: normal;
+    white-space: pre;
 }
 
 /*

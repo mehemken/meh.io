@@ -77,8 +77,7 @@
 <li>Create a bucket with the CLI</li>
 <li>Clean up</li>
 </ul>
-<p>In this article you will set up a new user with limited privilages. Why? So you're not always usint the root user with full privilages.</p>
-<p>First we will set up a new user using the AWS gui. We'll assign the right permissions so this new user can use the CLI. Then we'll use the new user to do the same thing.</p>
+<p>In this article you will set up a new user with limited privilages. Why? So you're not always using the root user with full privilages. Actually, we will set up two users.  First we will set up a new user using the AWS gui. We'll assign the right permissions so this new user can use the CLI. Then we'll use the new user to do the same thing.</p>
 <hr />
 <h2>Install the CLI</h2>
 <p>If you'd like to skip straight to the CLI part, you can just <a href="http://docs.aws.amazon.com/cli/latest/userguide/installing.html" title="Installation instructions">install the AWS Command Line Interface</a> on your machine.</p>
@@ -94,6 +93,7 @@
 <li>Click <strong>Create group</strong>. We'll use "new_group" for the name.</li>
 <li>In the search box type in "ec2full". You should see the "AmazonEC2FullAccess" policy appear. Check the box.</li>
 <li>In the search box type in "s3full". You should see the "AmazonS3FullAccess" policy appear. Check the box.</li>
+<li>In the search box type in "iamfull". You should see the "AmazonIAMFullAccess" policy appear. Check the box. (Careful with this one. Don't get hacked.)</li>
 <li>Click <strong>Create group</strong>. The "new_group" should be selected.</li>
 <li>Click <strong>Next: Review</strong></li>
 <li>Create the user.</li>
@@ -104,15 +104,15 @@
 <hr />
 <h2>Spin up an Amazon Linux AMI</h2>
 <p>Why Amazon Linux? Because it comes with the AWS CLI preinstalled. If you've never done this before, there are a few points to be aware of in this process.</p>
-<p>The first is that AWS separates the EC2 resource from the definition of web traffic. This means you will have to set up two things</p>
+<p>The first is that AWS separates the definition of the EC2 resource from the definition of accptable web traffic. This means you will have to set up two things</p>
 <ul>
 <li>EC2</li>
 <li>Security Group</li>
 </ul>
 <p>The security group will allow you to define an SSH rule. Without this rule you won't be able to log in to your instance and have access to the shell.</p>
 <p>The second point is that you are going to need <code>.pem</code> (or <code>.ppk</code> for Windows users) keys to access your instance. These will be available for download only once and if you forget to download them you will have delete your instance and spin up a new one. This will happen just before you click the final create button.</p>
-<p>To set up your instance follow this <a href="https://aws.amazon.com/getting-started/tutorials/launch-a-virtual-machine/">10 min</a> tutorial. If you're on Windows I recommend you connect to your instance <a href="http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/putty.html">like so</a>. If you're on linux</p>
-<pre><code>ssh -i &lt;path to MyNewKey.pem&gt; ec2-user@&lt;public ip&gt;
+<p>To set up your instance follow this <a href="https://aws.amazon.com/getting-started/tutorials/launch-a-virtual-machine/">10 min tutorial</a>. If you're on Windows I recommend you connect to your instance <a href="http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/putty.html">like so</a>. If you're on linux</p>
+<pre><code>$ ssh -i &lt;path to MyNewKey.pem&gt; ec2-user@&lt;public ip&gt;
 </code></pre>
 <hr />
 <h2>Configure your CLI</h2>
@@ -158,7 +158,7 @@ $ cat foo | jq '.Policies[] | .Arn' | grep FullAccess &gt; bar
 <p>Content coming soon.</p>
 <hr />
 <h2>Conclusion</h2>
-<p>We've set up a user in two different ways. I'd argue that the CLI version was much more pleasant because menus and buttons were completely absent. If you'd like to explore the CLI more just add the <code>help</code> option to the command you'd like to use. For example if you want to explore what the CLI can do with EC2, you can use <code>aws ec2 help</code>. You can navigate the resulting menu using the keys <code>j</code> and <code>k</code> and search the document usint <code>/&lt;search term&gt;</code>. For those unfamiliar with this, it's like using <a href="https://linux.die.net/man/1/less">less</a>.</p>
+<p>We've set up a user in two different ways. I'd argue that the CLI version was much more pleasant because menus and buttons were completely absent. If you'd like to explore the CLI more just add the <code>help</code> option to the command you'd like to use. For example if you want to explore what the CLI can do with EC2, you can use <code>aws ec2 help</code>. You can navigate the resulting menu using the keys <code>j</code> and <code>k</code> and search the document using <code>/&lt;search term&gt;</code>. For those unfamiliar with this, it's like using <a href="https://linux.die.net/man/1/less">less</a>.</p>
 <hr />
 
 	    </div>
