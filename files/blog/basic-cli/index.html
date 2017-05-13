@@ -112,7 +112,7 @@
 <p>The security group will allow you to define an SSH rule. Without this rule you won't be able to log in to your instance and have access to the shell.</p>
 <p>The second point is that you are going to need <code>.pem</code> (or <code>.ppk</code> for Windows users) keys to access your instance. These will be available for download only once and if you forget to download them you will have delete your instance and spin up a new one. This will happen just before you click the final create button.</p>
 <p>To set up your instance follow this <a href="https://aws.amazon.com/getting-started/tutorials/launch-a-virtual-machine/">10 min tutorial</a>. If you're on Windows I recommend you connect to your instance <a href="http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/putty.html">like so</a>. If you're on linux</p>
-<pre><code>$ ssh -i &lt;path to MyNewKey.pem### ec2-user@&lt;public ip###
+<pre><code>$ ssh -i &lt;path to MyNewKey.pem&gt; ec2-user@&lt;public ip&gt;
 </code></pre>
 <hr />
 <h2>Configure your CLI</h2>
@@ -148,14 +148,14 @@ $ aws iam create-login-profile \
     --user-name dude \
     --password weakpassword1
 
-$ aws iam create-access-key --user-name dude ### spam
+$ aws iam create-access-key --user-name dude &gt; spam
 </code></pre>
 <p>You might be asking, where did you get the arn for the permissions? And what the heck is an <a href="http://docs.aws.amazon.com/general/latest/gr/aws-arns-and-namespaces.html">arn</a> anyway?</p>
 <pre><code>$ sudo apt-get install jq
 $ cat spam | jq '.'
 
-$ aws iam list-policies ### foo
-$ cat foo | jq '.Policies[] | .Arn' | grep FullAccess ### bar
+$ aws iam list-policies &gt; foo
+$ cat foo | jq '.Policies[] | .Arn' | grep FullAccess &gt; bar
 </code></pre>
 <p>Using <a href="https://stedolan.github.io/jq/" title="sed for json">jq</a> is outside the scope of this tutorial. But it is amazing.</p>
 <hr />
@@ -177,14 +177,14 @@ $ aws s3 rb s3://biggest-bucket123
 $ cat spam | jq '.'    # For AccessKeyId
 $ aws iam delete-access-key \
     --user-name new_user \
-    --access-key-id &lt;AccessKeyId###
+    --access-key-id &lt;AccessKeyId&gt;
 $ aws iam delete-user --user-name new_user
 </code></pre>
 <h3>new_group</h3>
 <pre><code>$ aws iam delete-group --group-name new_group
 </code></pre>
 <h3>EC2 instance</h3>
-<pre><code>$ aws ec2 terminate-instances --instance-ids &lt;value###
+<pre><code>$ aws ec2 terminate-instances --instance-ids &lt;value&gt;
 </code></pre>
 <p>You will need your instance id for this one. To find this, check the output of</p>
 <pre><code>$ aws ec2 describe-instances
@@ -193,7 +193,7 @@ $ aws iam delete-user --user-name new_user
 <pre><code>$ aws ec2 describe-instances | jq '.Reservations[] | .Instances[] | {Name: .Tags[].Value, InstanceId: .InstanceId}'
 </code></pre>
 <h3>EC2 security group</h3>
-<pre><code>$ aws ec2 delete-security-group --group-name &lt;value###
+<pre><code>$ aws ec2 delete-security-group --group-name &lt;value&gt;
 </code></pre>
 <h3>bowling (IAM group)</h3>
 <pre><code>$ aws iam delete-group --group-name bowling
@@ -205,12 +205,12 @@ $ aws iam delete-user --user-name new_user
 # to use the GUI
 $ aws iam delete-access-key \
     --user-name dude \
-    --access-key-id &lt;AccessKeyId###
+    --access-key-id &lt;AccessKeyId&gt;
 $ aws iam delete-user --user-name dude
 </code></pre>
 <hr />
 <h2>Conclusion</h2>
-<p>We've set up a user in two different ways. I'd argue that the CLI version was much more pleasant because menus and buttons were completely absent. If you'd like to explore the CLI more just add the <code>help</code> option to the command you'd like to use. For example if you want to explore what the CLI can do with EC2, you can use <code>aws ec2 help</code>. You can navigate the resulting menu using the keys <code>j</code> and <code>k</code> and search the document using <code>/&lt;search term###</code>. For those unfamiliar with this, it's like using <a href="https://linux.die.net/man/1/less">less</a>.</p>
+<p>We've set up a user in two different ways. I'd argue that the CLI version was much more pleasant because menus and buttons were completely absent. If you'd like to explore the CLI more just add the <code>help</code> option to the command you'd like to use. For example if you want to explore what the CLI can do with EC2, you can use <code>aws ec2 help</code>. You can navigate the resulting menu using the keys <code>j</code> and <code>k</code> and search the document using <code>/&lt;search term&gt;</code>. For those unfamiliar with this, it's like using <a href="https://linux.die.net/man/1/less">less</a>.</p>
 <p>One thing I learned from this is that jq is actually quite usefull for dealing with AWS CLI output.</p>
 <p>Hope you got something from this too!</p>
 <hr />
