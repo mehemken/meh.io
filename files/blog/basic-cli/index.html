@@ -13,8 +13,7 @@
     <title>mehemken.io</title>
 
     <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css?family=Bangers|Cutive+Mono|Indie+Flower|Raleway|Roboto+Mono|Stardos+Stencil" rel="stylesheet"> 
-
+    <link href="https://fonts.googleapis.com/css?family=Raleway|Roboto+Mono|Stardos+Stencil" rel="stylesheet"> 
 
     <!-- Bootstrap core CSS -->
     <link href="/static/css/bootstrap.min.css " rel="stylesheet">
@@ -24,6 +23,9 @@
 
     <!-- Custom CSS -->
     <link href="/static/css/custom.css " rel="stylesheet">
+
+    <!-- Pygments -->
+    <link rel="stylesheet" href="/static/css/pygments.css">
 
   </head>
 
@@ -112,102 +114,130 @@
 <p>The security group will allow you to define an SSH rule. Without this rule you won't be able to log in to your instance and have access to the shell.</p>
 <p>The second point is that you are going to need <code>.pem</code> (or <code>.ppk</code> for Windows users) keys to access your instance. These will be available for download only once and if you forget to download them you will have delete your instance and spin up a new one. This will happen just before you click the final create button.</p>
 <p>To set up your instance follow this <a href="https://aws.amazon.com/getting-started/tutorials/launch-a-virtual-machine/">10 min tutorial</a>. If you're on Windows I recommend you connect to your instance <a href="http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/putty.html">like so</a>. If you're on linux</p>
-<pre><code>$ ssh -i &lt;path to MyNewKey.pem&gt; ec2-user@&lt;public ip&gt;
-</code></pre>
+<div class="codehilite"><pre><span></span>$ ssh -i &lt;path to MyNewKey.pem&gt; ec2-user@&lt;public ip&gt;
+</pre></div>
+
+
 <hr />
 <h2>Configure your CLI</h2>
 <p>The first thing you will need to do once you're logged in to the instance is to set up your CLI with the new user's credentials.</p>
-<pre><code>$ aws configure
-</code></pre>
+<div class="codehilite"><pre><span></span>$ aws configure
+</pre></div>
+
+
 <p>You will need the access keys you downloaded as a <code>.csv</code> file earlier. <strong>Make sure you enter the same region you're using in the console.</strong> My default was <code>us-west-2</code>. More info on configuring your cli <a href="http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html">here</a>.</p>
 <p>Now we'll set up a new user with the CLI.</p>
 <hr />
 <h2>Set up a new user with the CLI</h2>
-<pre><code>$ aws iam create-group --group-name bowling
+<div class="codehilite"><pre><span></span>$ aws iam create-group --group-name bowling
 
-$ aws iam attach-group-policy \
-    --group-name bowling \
+$ aws iam attach-group-policy <span class="se">\</span>
+    --group-name bowling <span class="se">\</span>
     --policy-arn arn:aws:iam::aws:policy/AmazonEC2FullAccess
 
-$ aws iam attach-group-policy \
-    --group-name bowling \
+$ aws iam attach-group-policy <span class="se">\</span>
+    --group-name bowling <span class="se">\</span>
     --policy-arn arn:aws:iam::aws:policy/AmazonS3FullAccess
 
 $ aws iam list-attached-group-policies --group-name bowling
-</code></pre>
-<p>The above lines create a group and apply permissions to the group. You will now be able to add/remove users to it and the users will inherit those permissions.</p>
-<pre><code>$ aws iam create-user --user-name dude
+</pre></div>
 
-$ aws iam add-user-to-group \
-    --user-name dude \
+
+<p>The above lines create a group and apply permissions to the group. You will now be able to add/remove users to it and the users will inherit those permissions.</p>
+<div class="codehilite"><pre><span></span>$ aws iam create-user --user-name dude
+
+$ aws iam add-user-to-group <span class="se">\</span>
+    --user-name dude <span class="se">\</span>
     --group-name bowling
 
 $ aws iam get-group --group-name bowling
 
-$ aws iam create-login-profile \
-    --user-name dude \
+$ aws iam create-login-profile <span class="se">\</span>
+    --user-name dude <span class="se">\</span>
     --password weakpassword1
 
 $ aws iam create-access-key --user-name dude &gt; spam
-</code></pre>
+</pre></div>
+
+
 <p>You might be asking, where did you get the arn for the permissions? And what the heck is an <a href="http://docs.aws.amazon.com/general/latest/gr/aws-arns-and-namespaces.html">arn</a> anyway?</p>
-<pre><code>$ sudo apt-get install jq
-$ cat spam | jq '.'
+<div class="codehilite"><pre><span></span>$ sudo apt-get install jq
+$ cat spam <span class="p">|</span> jq <span class="s1">&#39;.&#39;</span>
 
 $ aws iam list-policies &gt; foo
-$ cat foo | jq '.Policies[] | .Arn' | grep FullAccess &gt; bar
-</code></pre>
+$ cat foo <span class="p">|</span> jq <span class="s1">&#39;.Policies[] | .Arn&#39;</span> <span class="p">|</span> grep FullAccess &gt; bar
+</pre></div>
+
+
 <p>Using <a href="https://stedolan.github.io/jq/" title="sed for json">jq</a> is outside the scope of this tutorial. But it is amazing.</p>
 <hr />
 <h2>Set up a bucket</h2>
 <p>Setting up a bucket is simple.</p>
-<pre><code>$ aws s3 mb s3://biggest-bucket123
+<div class="codehilite"><pre><span></span>$ aws s3 mb s3://biggest-bucket123
 
 $ aws s3 ls
 
 $ aws s3 rb s3://biggest-bucket123
-</code></pre>
+</pre></div>
+
+
 <p>Here we use the make bucket command and the list comand and the remove bucket command. For more, see the <a href="http://docs.aws.amazon.com/cli/latest/reference/s3/index.html#cli-aws-s3" title="s3 cli docs">docs</a>.</p>
 <hr />
 <h2>Clean up</h2>
 <p>Ok we have a whole bunch of stuff. But we no longer have to use menus and buttons and wait for pages to load. We can do it all from the command line!</p>
 <p>We have this stuff:</p>
 <h3>new_user</h3>
-<pre><code>$ aws iam delete-login-profile --user-name new_user
-$ cat spam | jq '.'    # For AccessKeyId
-$ aws iam delete-access-key \
-    --user-name new_user \
+<div class="codehilite"><pre><span></span>$ aws iam delete-login-profile --user-name new_user
+$ cat spam <span class="p">|</span> jq <span class="s1">&#39;.&#39;</span>    <span class="c1"># For AccessKeyId</span>
+$ aws iam delete-access-key <span class="se">\</span>
+    --user-name new_user <span class="se">\</span>
     --access-key-id &lt;AccessKeyId&gt;
 $ aws iam delete-user --user-name new_user
-</code></pre>
+</pre></div>
+
+
 <h3>new_group</h3>
-<pre><code>$ aws iam delete-group --group-name new_group
-</code></pre>
+<div class="codehilite"><pre><span></span>$ aws iam delete-group --group-name new_group
+</pre></div>
+
+
 <h3>EC2 instance</h3>
-<pre><code>$ aws ec2 terminate-instances --instance-ids &lt;value&gt;
-</code></pre>
+<div class="codehilite"><pre><span></span>$ aws ec2 terminate-instances --instance-ids &lt;value&gt;
+</pre></div>
+
+
 <p>You will need your instance id for this one. To find this, check the output of</p>
-<pre><code>$ aws ec2 describe-instances
-</code></pre>
+<div class="codehilite"><pre><span></span>$ aws ec2 describe-instances
+</pre></div>
+
+
 <p>Or if you're feeling adventurous with jq, try the following. You will need to have set a 'Name' tag for your instance. You will get an error if you didn't.</p>
-<pre><code>$ aws ec2 describe-instances | jq '.Reservations[] | .Instances[] | {Name: .Tags[].Value, InstanceId: .InstanceId}'
-</code></pre>
+<div class="codehilite"><pre><span></span>$ aws ec2 describe-instances <span class="p">|</span> jq <span class="s1">&#39;.Reservations[] | .Instances[] | {Name: .Tags[].Value, InstanceId: .InstanceId}&#39;</span>
+</pre></div>
+
+
 <h3>EC2 security group</h3>
-<pre><code>$ aws ec2 delete-security-group --group-name &lt;value&gt;
-</code></pre>
+<div class="codehilite"><pre><span></span>$ aws ec2 delete-security-group --group-name &lt;value&gt;
+</pre></div>
+
+
 <h3>bowling (IAM group)</h3>
-<pre><code>$ aws iam delete-group --group-name bowling
-</code></pre>
+<div class="codehilite"><pre><span></span>$ aws iam delete-group --group-name bowling
+</pre></div>
+
+
 <h3>dude (IAM user)</h3>
-<pre><code>$ aws iam delete-login-profile --user-name dude
-# You will need the AccessKeyId
-# If you didn't save it, you'll need
-# to use the GUI
-$ aws iam delete-access-key \
-    --user-name dude \
+<div class="codehilite"><pre><span></span>$ aws iam delete-login-profile --user-name dude
+<span class="c1"># You will need the AccessKeyId</span>
+<span class="c1"># If you didn&#39;t save it, you&#39;ll need</span>
+<span class="c1"># to use the GUI</span>
+$ aws iam delete-access-key <span class="se">\</span>
+    --user-name dude <span class="se">\</span>
     --access-key-id &lt;AccessKeyId&gt;
 $ aws iam delete-user --user-name dude
-</code></pre>
+</pre></div>
+
+
 <hr />
 <h2>Conclusion</h2>
 <p>We've set up a user in two different ways. I'd argue that the CLI version was much more pleasant because menus and buttons were completely absent. If you'd like to explore the CLI more just add the <code>help</code> option to the command you'd like to use. For example if you want to explore what the CLI can do with EC2, you can use <code>aws ec2 help</code>. You can navigate the resulting menu using the keys <code>j</code> and <code>k</code> and search the document using <code>/&lt;search term&gt;</code>. For those unfamiliar with this, it's like using <a href="https://linux.die.net/man/1/less">less</a>.</p>

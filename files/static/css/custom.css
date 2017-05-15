@@ -7,26 +7,15 @@ h1, h2, h3, h4 {
     font-family: 'Stardos Stencil', cursive;
 }
 
-code {
-    font-family: 'Roboto Mono', monospace;
-}
 pre {
-    font-size: medium;
-}
-
-pre code {
-    word-wrap: normal;
-    white-space: pre;
+    font-size: large;
 }
 
 /*
 */
 
 /*
-font-family: 'Cutive Mono', monospace;
 font-family: 'Raleway', sans-serif;
-font-family: 'Bangers', cursive;
 font-family: 'Stardos Stencil', cursive;
 font-family: 'Roboto Mono', monospace;
-font-family: 'Indie Flower', cursive;
 */

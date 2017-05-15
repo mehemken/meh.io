@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="/static/images/Favicon.ico">
+    <link rel="icon" href="/static/images/Favicon.ico">
+
+    <title>mehemken.io</title>
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Raleway|Roboto+Mono|Stardos+Stencil" rel="stylesheet"> 
+
+    <!-- Bootstrap core CSS -->
+    <link href="/static/css/bootstrap.min.css " rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="/static/css/sticky-footer-navbar.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="/static/css/custom.css " rel="stylesheet">
+
+    <!-- Pygments -->
+    <link rel="stylesheet" href="/static/css/pygments.css">
+
+  </head>
+
+  <body>
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-default navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="/">mehemken.io</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+          <ul class="nav navbar-nav">
+              <li><a href="/blog/">Blog</a></li>
+              <li><a href="/about/">About</a></li>
+              <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">More stuff<span class="caret"></span></a>
+              <ul class="dropdown-menu">
+                <li class="dropdown-header">Professional</li>
+                <li><a href="https://www.linkedin.com/in/mehemken">LinkedIn</a></li>
+                <li><a href="https://github.com/mehemken">GitHub</a></li>
+                <li><a href="http://stackoverflow.com/cv/mehemken">StackOverflow CV</a></li>
+                <li role="separator" class="divider"></li>
+                <li class="dropdown-header">Social</li>
+                <li><a href="https://twitter.com/mehemken">Twitter</a></li>
+              </ul>
+            </li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <!-- Begin page content -->
+    <div class="container">
+        <div class="row">
+	    <div class="col-xs-8 col-sm-8 col-lg-8">
+
+    <h1>Intro to Flask</h1>
+    <p class="lead">14 May 2017</p>
+    <hr>
+    <h2>What is Flask?</h2>
+<p>Flask is a Python library that allows you to build a website quickly using
+Python. It is well known throughout the Python community and supports both
+Python 2 and 3. As an alternative to Django, Flask is (IMHO) easier to learn.
+You don't have to deal with setting up a database if you don't need it. If
+you do need it though, you can use your favorite database without worrying
+about clashes with the Flask framework. Django is opinionated about that and
+works best with relational databases.</p>
+<h2>Intro</h2>
+<p>This post will walk you through how to set up a basic Flask UI. I won't get
+into making it look nice with CSS or anything like that. And I won't get into
+any JavaScript.</p>
+<p>In this tutorial we will build a basic HTML form that doesn't do anything. This
+is just to get you started. If you would like to see a followup post that shows
+you how to connect the form to a database I can do that.</p>
+<p>Outline:</p>
+<ul>
+<li>Print <code>hello world</code> to the browser</li>
+<li>Print HTML to the browser</li>
+<li>Using a template for your web page</li>
+<li>Serve an HTML template</li>
+<li>Add a form to the page</li>
+</ul>
+<hr />
+<h2>Print text in the browser</h2>
+<p>The first thing to do is set up a new directory for your project and add a file
+called <code>app.py</code>.</p>
+<div class="codehilite"><pre><span></span>scratch/
+└── app.py
+
+0 directories, 1 file
+</pre></div>
+
+
+<p>You will also need to install Flask. Use your favorite method for creating a
+virtual environment. I use <code>conda</code> from the Anaconda Python distribution
+(<a href="https://conda.io/docs/using/envs.html#id2" title="conda envs">conda docs</a>). But <code>virtualenv</code> is also a good option (<a href="https://virtualenv.pypa.io/en/stable/userguide/#usage" title="virtualenv envs">virtualenv
+docs</a>). Once you have your environment for this project set up you'll just
+do a <code>pip install flask</code>. It will also pull in a few dependencies.</p>
+<p>In <code>app.py</code> add the following</p>
+<div class="codehilite"><pre><span></span><span class="c1"># file: app.py</span>
+
+<span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span>
+<span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="nd">@app.route</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">index</span><span class="p">():</span>
+    <span class="k">return</span> <span class="s2">&quot;Hello World!&quot;</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">debug</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
+
+
+<p>A few things happening here</p>
+<ul>
+<li>The <code>app</code> object is instantiated. This will be a useful tool.</li>
+<li>We define the root url with the <code>@app.route</code> decorator.</li>
+<li>We define the response to be returned to anyone who requests our page.</li>
+<li>The <code>if</code> statement is <a href="http://stackoverflow.com/questions/419163/what-does-if-name-main-do">explained here</a>.</li>
+</ul>
+<p>Now we can go to our terminal and run this. I recommend you run it in a new terminal because it blocks.</p>
+<div class="codehilite"><pre><span></span>$ python app.py
+</pre></div>
+
+
+<p>Now head to your browser and enter the url <code>localhost:5000</code>. Flask uses port 5000 by default. You should see the text <code>Hello World!</code> in your browser.</p>
+<hr />
+<h2>Return HTML</h2>
+<p>Ok that was easy, but how do we return HTML to the browser? Easy</p>
+<div class="codehilite"><pre><span></span><span class="nd">@app.route</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">index</span><span class="p">():</span>
+    <span class="k">return</span> <span class="s2">&quot;&lt;html&gt;&lt;body&gt;&lt;h1&gt;I am HTML&lt;/h1&gt;&lt;/body&gt;&lt;/html&gt;&quot;</span>
+</pre></div>
+
+
+<p>Just change the hello world line to print html.</p>
+<hr />
+<h2>Using a template</h2>
+<p>But you want to have HTML in an <code>.html</code> file, not a <code>.py</code> file. So we'll use a template. Flask comes with the <a href="http://jinja.pocoo.org/" title="jinja2">jinja2</a> template package. It is super useful. To get started we'll need to create a new <code>index.html</code> file and put it here:</p>
+<div class="codehilite"><pre><span></span>scratch/
+├── app.py
+└── templates/
+    └── index.html
+</pre></div>
+
+
+<p>And to use it you just do two things</p>
+<ul>
+<li>add <code>render_template</code> to our list of imports</li>
+<li>use it in place of returning plain text</li>
+</ul>
+<p>Flask takes care of everything else. Here is the entire file so far</p>
+<div class="codehilite"><pre><span></span><span class="c1"># file: app.py</span>
+
+<span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span><span class="p">,</span> <span class="n">render_template</span>
+<span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="nd">@app.route</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">index</span><span class="p">():</span>
+    <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="s1">&#39;index.html&#39;</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">debug</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Now if you reload the page you will see nothing. And this is exactly what we want to see. So let's add something to our <code>index.html</code>.</p>
+<div class="codehilite"><pre><span></span><span class="c">&lt;!-- file: index.html --&gt;</span>
+
+<span class="p">&lt;</span><span class="nt">html</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">head</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">title</span><span class="p">&gt;</span>Default<span class="p">&lt;/</span><span class="nt">title</span><span class="p">&gt;</span>
+    <span class="p">&lt;/</span><span class="nt">head</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">body</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">h1</span><span class="p">&gt;</span>Spam<span class="p">&lt;/</span><span class="nt">h1</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>Eggs, bacon, baked beans.<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+    <span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">html</span><span class="p">&gt;</span>
+</pre></div>
+
+
+<p>Now, if you reload the page you will see your new html.</p>
+<hr />
+<h2>HTML Forms</h2>
+<p>The last thing we'll do here is add a form. As a resource I've used the <a href="https://www.w3schools.com/html/html_forms.asp" title="HTML Forms">W3 Schools</a> page on the subject. I don't have form elements memorized.</p>
+<p>Open the <code>index.html</code> template and add the form elements below. This is the entire file</p>
+<div class="codehilite"><pre><span></span><span class="c">&lt;!-- file: index.html --&gt;</span>
+
+<span class="p">&lt;</span><span class="nt">html</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">head</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">title</span><span class="p">&gt;</span>Default<span class="p">&lt;/</span><span class="nt">title</span><span class="p">&gt;</span>
+    <span class="p">&lt;/</span><span class="nt">head</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">body</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">h1</span><span class="p">&gt;</span>Spam<span class="p">&lt;/</span><span class="nt">h1</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>Eggs, bacon, baked beans.<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">form</span><span class="p">&gt;</span>
+            First name: <span class="p">&lt;</span><span class="nt">br</span><span class="p">&gt;</span>
+            <span class="p">&lt;</span><span class="nt">input</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;text&quot;</span> <span class="na">name</span><span class="o">=</span><span class="s">&quot;firstname&quot;</span><span class="p">&gt;&lt;</span><span class="nt">br</span><span class="p">&gt;</span>
+            Last name: <span class="p">&lt;</span><span class="nt">br</span><span class="p">&gt;</span>
+            <span class="p">&lt;</span><span class="nt">input</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;text&quot;</span> <span class="na">name</span><span class="o">=</span><span class="s">&quot;lastname&quot;</span><span class="p">&gt;&lt;</span><span class="nt">br</span><span class="p">&gt;</span>
+        <span class="p">&lt;/</span><span class="nt">form</span><span class="p">&gt;</span>
+    <span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">html</span><span class="p">&gt;</span>
+</pre></div>
+
+
+<hr />
+<h2>Conclusion</h2>
+<p>We've created a very simple web page that contains text and some form elements. However, because we don't have any server logic to handle any returned data from those elements they don't do anything. That is a topic for another time. Or if I find a good resource that goes into how to use data from form elements, I'll link to it here. Questions, comments, concerns, shoot me an email!</p>
+<hr />
+
+	    </div>
+            <div class="col-xs-4 col-sm-4 col-lg-4">
+		
+
+            </div>
+	</div>
+    </div>
+
+    <footer class="footer">
+      <div class="container">
+	  <div class="row">
+	      <p class="text-muted"><a href="/resume/"><span class="glyphicon glyphicon-copyright-mark"></span> M. Hemken 2017</a></p>
+	  </div>
+      </div>
+    </footer>
+  </body>
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <script src="/static/jquery/jquery.min.js"></script>
+    <script src="/static/js/bootstrap.min.js"></script>
+</html>
