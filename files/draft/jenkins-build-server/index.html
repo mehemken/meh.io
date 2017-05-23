@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="/static/images/Favicon.ico">
+    <link rel="icon" href="/static/images/Favicon.ico">
+
+    <title>mehemken.io</title>
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Raleway|Stardos+Stencil" rel="stylesheet"> 
+
+    <!-- Bootstrap core CSS -->
+    <link href="/static/css/bootstrap.min.css " rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="/static/css/sticky-footer-navbar.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="/static/css/custom.css " rel="stylesheet">
+
+    <!-- Pygments -->
+    <link rel="stylesheet" href="/static/css/pygments.css">
+
+  </head>
+
+  <body>
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-default navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="/">mehemken.io</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+          <ul class="nav navbar-nav">
+              <li><a href="/blog/">Blog</a></li>
+              <li><a href="/about/">About</a></li>
+              <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">More stuff<span class="caret"></span></a>
+              <ul class="dropdown-menu">
+                <li class="dropdown-header">Professional</li>
+                <li><a href="https://www.linkedin.com/in/mehemken">LinkedIn</a></li>
+                <li><a href="https://github.com/mehemken">GitHub</a></li>
+                <li><a href="http://stackoverflow.com/cv/mehemken">StackOverflow CV</a></li>
+                <li role="separator" class="divider"></li>
+                <li class="dropdown-header">Social</li>
+                <li><a href="https://twitter.com/mehemken">Twitter</a></li>
+              </ul>
+            </li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <!-- Begin page content -->
+    <div class="container">
+        <div class="row">
+	    <div class="col-xs-8 col-sm-8 col-lg-8">
+
+    <h1>How to set up a Jenkins build server</h1>
+    <p class="lead">20 May 2017</p>
+    <p><a href="" target="blank" class="btn btn-primary" role="button"><span class="glyphicon glyphicon-thumbs-up"></span> Comment on twitter!</a></p>
+    <hr>
+    <h2>First steps</h2>
+<p>I'm following the <a href="https://d0.awsstatic.com/Projects/P5505030/aws-project_Jenkins-build-server.pdf" title="Jenkins tutorial">tutorial</a> created by AWS.</p>
+<p>First I'll need to create a key pair using this command</p>
+<div class="codehilite"><pre><span></span>$ aws ec2 create-key-pair <span class="se">\</span>
+    --key-name MyKeyPair <span class="se">\</span>
+    --query <span class="s1">&#39;KeyMaterial&#39;</span> <span class="se">\</span>
+    --output text &gt; MyKeyPair.pem
+</pre></div>
+
+
+<p>I'm having trouble getting http traffic set up on port 8080. My security group has a custom TCP rule allowing all traffic to port 8080. It seems inexplicable. I wonder if it is something basic I'm missing.</p>
+<p>Ok it was Jenkins. It wasn't starting for some reason. I created a new EC2 and now it works.</p>
+<p>I left off on page 10 in the tutorial. It is the part where I input the AWS info to build EC2 build instance. That's the part I'd really like to finish. Unfortunately it will have to wait.</p>
+<hr />
+<h2>Jenkins server</h2>
+<p>The first part is easy.</p>
+<ol>
+<li>Create an IAM user for Jenkins.</li>
+<li>Set up an EC2, Security Group and allow tcp traffic to port 8080.</li>
+<li>Install Jenkins and set up the basics.</li>
+<li>Install the AWS EC2 Plugin.</li>
+<li>Add a cloud with the AWS access keys for the Jenkins user.</li>
+</ol>
+<p>Once this is set up, we'll have to use worker nodes. I'd like to do this from the declarative pipeline in a Jenkinsfile. How do I do that?</p>
+<hr />
+<h2>Setting up workers</h2>
+<p>According to <a href="https://www.cloudbees.com/blog/setting-jenkins-ec2-slaves" title="cloudbees jenkins-ec2-workers">this tutorial</a> I have to create a new AMI with Java on it. So I've done this. My new AMI has the JDK and it has Anaconda3. Once that is done, I can configure the type of workers that Jenkins can build.</p>
+<p>It looks like it might be very simple to start using the workers in a pipeline. When configuring the settings, Jenkins asks for labels. It's the last thing it asks for and provides this help text.</p>
+<blockquote>
+<p>Labels (or tags) are used to group multiple agents into one logical group. Labels do not necessarily have to represent the operating system on the agent; you can also use labels to note the CPU architecture, or that a certain tool is installed on the agent.</p>
+</blockquote>
+<hr />
+<h2>Jenkins has terrible documentation</h2>
+<p>I've been trying to get Jenkins to create a worker node using EC2 all day. It has not happened yet. The documentation is ABSOLUTELY TERRIBLE.</p>
+<hr />
+    <p><a href="" target="blank" class="btn btn-primary" role="button"><span class="glyphicon glyphicon-thumbs-up"></span> Comment on twitter!</a></p>
+
+	    </div>
+            <div class="col-xs-4 col-sm-4 col-lg-4">
+		
+
+            </div>
+	</div>
+    </div>
+
+    <footer class="footer">
+      <div class="container">
+	  <div class="row">
+	      <p class="text-muted"><a href="/resume/"><span class="glyphicon glyphicon-copyright-mark"></span> M. Hemken 2017</a></p>
+	  </div>
+      </div>
+    </footer>
+  </body>
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <script src="/static/jquery/jquery.min.js"></script>
+    <script src="/static/js/bootstrap.min.js"></script>
+</html>
