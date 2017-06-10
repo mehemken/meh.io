@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="/static/images/Favicon.ico">
+    <link rel="icon" href="/static/images/Favicon.ico">
+
+    <title>mehemken.io</title>
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Raleway|Stardos+Stencil" rel="stylesheet"> 
+
+    <!-- Bootstrap core CSS -->
+    <link href="/static/css/bootstrap.min.css " rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="/static/css/sticky-footer-navbar.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="/static/css/custom.css " rel="stylesheet">
+
+    <!-- Pygments -->
+    <link rel="stylesheet" href="/static/css/pygments.css">
+
+  </head>
+
+  <body>
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-default navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="/">mehemken.io</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+          <ul class="nav navbar-nav">
+              <li><a href="/blog/">Blog</a></li>
+              <li><a href="/about/">About</a></li>
+              <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">More stuff<span class="caret"></span></a>
+              <ul class="dropdown-menu">
+                <li class="dropdown-header">Professional</li>
+                <li><a href="https://www.linkedin.com/in/mehemken">LinkedIn</a></li>
+                <li><a href="https://github.com/mehemken">GitHub</a></li>
+                <li><a href="http://stackoverflow.com/cv/mehemken">StackOverflow CV</a></li>
+                <li role="separator" class="divider"></li>
+                <li class="dropdown-header">Social</li>
+                <li><a href="https://twitter.com/mehemken">Twitter</a></li>
+              </ul>
+            </li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <!-- Begin page content -->
+    <div class="container">
+        <div class="row">
+	    <div class="col-xs-8 col-sm-8 col-lg-8">
+
+    <h1>Hello world with Lambda (Python 3.6)</h1>
+    <p class="lead">10 June 2017</p>
+    <p><a href="None" target="blank" class="btn btn-primary" role="button"><span class="glyphicon glyphicon-thumbs-up"></span> Comment on twitter!</a></p>
+    <hr>
+    <h2>Outline</h2>
+<p>This tutorial will walk through how to build a very simple web page that triggers a lambda function. The lambda function will return the string <code>'Hello from lambda'</code>. We will need to build the following components.</p>
+<ul>
+<li>AWS Lambda function</li>
+<li>AWS APIGateway API</li>
+<li>HTML form (w/ Flask Python 3.6)</li>
+</ul>
+<p>Why Python 3.6? I needed an excuse to use the new <a href="https://docs.python.org/3/reference/lexical_analysis.html#formatted-string-literals" title="Python 3.6 f-strings">f-string</a> feature. The goal of this tutorial is not to walk through the UI in the AWS console. That has already <a href="http://docs.aws.amazon.com/lambda/latest/dg/get-started-create-function.html" title="Create a hello world lambda function">been</a> <a href="http://docs.aws.amazon.com/apigateway/latest/developerguide/create-api-resources-methods.html" title="Create a simple API in API Gateway">done</a>. The goal here is to outline a basic setup for anyone who has never used AWS Lambda before. By the end of this tutorial you will know how each of these components fit together to create what I'm calling a lambda button. When you push the button, you get the text "Hello from lambda" printed on your screen.</p>
+<hr />
+<h2>Components</h2>
+<p>We only have three components. I've only included the absolute bare minimum to make this work. From the user perspective, we start with a simple web page. It has a button that says 'Go!' on it. When you push the button, the text 'Hello from lambda' appears below the button.</p>
+<h3>Flask HTML button</h3>
+<p>You can see all the code required for the Flask app in <a href="https://github.com/mehemken/lambda-button" title="Flask lambda button">a GitHub repo</a>. If you know how to <code>pip install</code> Flask and FlaskWTF you'll be able to run that code. Also make sure you're using Python 3.6.</p>
+<p>The key logic of it is goes like this:</p>
+<div class="codehilite"><pre><span></span><span class="nd">@app.route</span><span class="p">(</span><span class="s1">&#39;/&lt;value&gt;&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span><span class="s1">&#39;POST&#39;</span><span class="p">))</span>
+<span class="k">def</span> <span class="nf">new</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+    <span class="n">form</span> <span class="o">=</span> <span class="n">LambdaButton</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">form</span><span class="o">.</span><span class="n">validate_on_submit</span><span class="p">():</span>
+        <span class="n">new_value</span> <span class="o">=</span> <span class="n">ping_lambda</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;/{new_value}&#39;</span><span class="p">)</span>  <span class="c1"># AND THE CROWD GOES WILD!!</span>
+<span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="s1">&#39;index.html&#39;</span><span class="p">,</span> <span class="n">form</span><span class="o">=</span><span class="n">form</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">)</span>
+</pre></div>
+
+
+<p>You will notice that we have a <code>ping_lambda()</code> invocation there. That's where we call our lambda function. It looks like this:</p>
+<div class="codehilite"><pre><span></span><span class="kn">import</span> <span class="nn">requests</span>
+
+<span class="k">def</span> <span class="nf">ping_lambda</span><span class="p">():</span>
+    <span class="n">url</span> <span class="o">=</span> <span class="s1">&#39;https://{api-id}.execute-api.{region-id}.amazonaws.com/{api-stage}/{api-resource}&#39;</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">text</span>
+</pre></div>
+
+
+<p>The url is created by API Gateway.</p>
+<h3>Lambda function</h3>
+<p>Next is the Lambda function. AWS provides very thorough tutorials on how to get started, so I'll leave their <a href="http://docs.aws.amazon.com/lambda/latest/dg/get-started-create-function.html" title="Create a hello world lambda function">UI documentation</a> to them. For this example you'll only need the absolute simplest code in your function.</p>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">lambda_handler</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+    <span class="k">return</span> <span class="s1">&#39;Hello from lambda&#39;</span>
+</pre></div>
+
+
+<p>That's it for the code. You really could use eithe Python 2.7 or 3.6 runtimes for this, it doesn't matter. My configuration is this.</p>
+<ul>
+<li><strong>Runtime</strong>: Python 3.6</li>
+<li><strong>Handler</strong>: lambda_function.lambda_handler</li>
+<li><strong>Role</strong>: Choose an existing role</li>
+<li><strong>Existing role</strong>: service-role/execute_my_lambda</li>
+<li><strong>Description</strong>: says hello</li>
+</ul>
+<p>I have no triggers, tags or monitoring.</p>
+<h3>API Gateway</h3>
+<p>Why do we need this? Because Lambda only does code. It does not handle HTTP or web stuff by itself. Hence, we need to use the API Gateway service to expose the function so we can call the code whenever we want. Lambda experts will have a whole lot more to say on this matter.</p>
+<p>Suffice it to say, in our example we only need two things:</p>
+<ul>
+<li>a Resource</li>
+<li>a <code>/GET</code> method</li>
+</ul>
+<p>The resource is what API Gateway uses as a unit of work. A resource can be deployed, stopped etc. It can also have methods. A <code>/GET</code> method will create a way for the resource to point to our code in the Lambda function.</p>
+<h2>Conclusion</h2>
+<p>When you click the button, the Flask app calls an AWS API. The API triggers the Lambda function, which returns the text 'Hello from lambda'. The API then delivers that text to the Flask app, which then displays it on your screen.</p>
+<p>If something is unclear here, let me know on Twitter. I'm happy to explain in a bit more detail.</p>
+<hr />
+    <p><a href="None" target="blank" class="btn btn-primary" role="button"><span class="glyphicon glyphicon-thumbs-up"></span> Comment on twitter!</a></p>
+
+	    </div>
+            <div class="col-xs-4 col-sm-4 col-lg-4">
+		
+
+            </div>
+	</div>
+    </div>
+
+    <footer class="footer">
+      <div class="container">
+	  <div class="row">
+	      <p class="text-muted"><a href="/resume/"><span class="glyphicon glyphicon-copyright-mark"></span> M. Hemken 2017</a></p>
+	  </div>
+      </div>
+    </footer>
+  </body>
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <script src="/static/jquery/jquery.min.js"></script>
+    <script src="/static/js/bootstrap.min.js"></script>
+</html>
