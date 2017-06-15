@@ -66,44 +66,23 @@
         <div class="row">
 	    <div class="col-xs-8 col-sm-8 col-lg-8">
 
-            <h1>Blog</h1>
-            <p class="lead">Adapted from the Cloud Ops 101 meetup by <a href="https://www.meetup.com/LearnTeachCode/">Learn Teach Code</a></p>
-            <hr>
+    <h1>Create an AWS KeyPair with the CLI</h1>
+    <p class="lead">15 June 2017</p>
+    <p><a href="None" target="blank" class="btn btn-primary" role="button"><span class="glyphicon glyphicon-thumbs-up"></span> Comment on twitter!</a></p>
+    <hr>
+    <h2>Key Pairs in the CLI</h2>
+<p>The source of this post is <a href="http://docs.aws.amazon.com/cli/latest/userguide/cli-ec2-keypairs.html" title="Using Key Pairs">the AWS docs</a>. The reason you need the flags here is that you can create the key pair in the CLI, but if you don't download the key material, you won't have the key on your local machine.</p>
+<div class="codehilite"><pre><span></span>aws ec2 create-key-pair <span class="se">\</span>
+    --key-name KeyFooBar <span class="se">\</span>
+    --query <span class="s1">&#39;KeyMaterial&#39;</span> <span class="se">\</span>
+    --output text <span class="se">\</span>
+    &gt; KeyFooBar.pem
+chmod <span class="m">400</span> KeyFooBar.pem
+</pre></div>
 
-            <ul class="list-group">
-            
-            <a href="/blog/create-keys-aws/" class="list-group-item list-group-item-action">
-                <p>15 June 2017</p>
-                <p class="lead text-primary">Create an AWS KeyPair with the CLI</p>
-                <p>The command needs a few flags. Refresh your memory here.</p>
-            </a>
-            <br>
-            
-            <a href="/blog/basic-lambda/" class="list-group-item list-group-item-action">
-                <p>10 June 2017</p>
-                <p class="lead text-primary">Hello world with Lambda (Python 3.6)</p>
-                <p>Build a flask app with a button that triggers an AWS lambda function.</p>
-            </a>
-            <br>
-            
-            <a href="/blog/intro-to-flask/" class="list-group-item list-group-item-action">
-                <p>14 May 2017</p>
-                <p class="lead text-primary">Intro to Flask</p>
-                <p>Get started building quick easy UIs for your custom tools.</p>
-            </a>
-            <br>
-            
-            <a href="/blog/basic-cli/" class="list-group-item list-group-item-action">
-                <p>13 May 2017</p>
-                <p class="lead text-primary">The AWS CLI Intro</p>
-                <p>Learn to use the AWS CLI to set up users and buckets.</p>
-            </a>
-            <br>
-            
-            </ul>
 
-            <!--
-            -->
+<p>And that's it folks!</p>
+    <p><a href="None" target="blank" class="btn btn-primary" role="button"><span class="glyphicon glyphicon-thumbs-up"></span> Comment on twitter!</a></p>
 
 	    </div>
             <div class="col-xs-4 col-sm-4 col-lg-4">
