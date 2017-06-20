@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="/static/images/Favicon.ico">
+    <link rel="icon" href="/static/images/Favicon.ico">
+
+    <title>mehemken.io</title>
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Raleway|Stardos+Stencil" rel="stylesheet"> 
+
+    <!-- Bootstrap core CSS -->
+    <link href="/static/css/bootstrap.min.css " rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="/static/css/sticky-footer-navbar.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="/static/css/custom.css " rel="stylesheet">
+
+    <!-- Pygments -->
+    <link rel="stylesheet" href="/static/css/pygments.css">
+
+  </head>
+
+  <body>
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-default navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="/">mehemken.io</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+          <ul class="nav navbar-nav">
+              <li><a href="/blog/">Blog</a></li>
+              <li><a href="/about/">About</a></li>
+              <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">More stuff<span class="caret"></span></a>
+              <ul class="dropdown-menu">
+                <li class="dropdown-header">Professional</li>
+                <li><a href="https://www.linkedin.com/in/mehemken">LinkedIn</a></li>
+                <li><a href="https://github.com/mehemken">GitHub</a></li>
+                <li><a href="http://stackoverflow.com/cv/mehemken">StackOverflow CV</a></li>
+                <li role="separator" class="divider"></li>
+                <li class="dropdown-header">Social</li>
+                <li><a href="https://twitter.com/mehemken">Twitter</a></li>
+              </ul>
+            </li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <!-- Begin page content -->
+    <div class="container">
+        <div class="row">
+	    <div class="col-xs-8 col-sm-8 col-lg-8">
+
+    <h1>Review of CloudFormation and Terraform</h1>
+    <p class="lead">20 June 2017</p>
+    <p><a href="None" target="blank" class="btn btn-primary" role="button"><span class="glyphicon glyphicon-thumbs-up"></span> Comment on twitter!</a></p>
+    <hr>
+    <h1>Article: Review</h1>
+<p>I used CloudFormation and Terraform to create a sandbox environment for learning Ansible. At the time of this writing I am learning both tools, so it is not an expert opinion. I have used CloudFormation in production, but not Terraform.</p>
+<p>CloudFormation is a service that helps you model and set up your AWS resources so that you can spend less time managing those resources and more time focusing on you applications. Terraform is a tool for building, changing, and versioning infrastructure safely and efficiently. Both tools use configuration files to describe components required by your infrastructure.</p>
+<h2>Pictures</h2>
+<p>I enjoyed using both tools. I found it very useful that CloudFormation templates can be used to generate a descriptive diagram of your infrastructure.</p>
+<p><a href="/static/images/articles/review-cloudformation-terraform/cf-diagram.png" title="Pretty picture">CloudFormation diagram</a> &lt;&lt; Picture!</p>
+<p>That image was generated with a tool in the AWS management console. It is free and easy to use. It accepts both JSON and YAML format config files. You can even use it to turn a JSON config into YAML and vice versa. Working with a client or manager, they will inevitably ask "is it done yet?" and you can show them this diagram to show your progress. No such tool exists for Terraform.</p>
+<p>Terraform has a <code>graph</code> command (<a href="https://www.terraform.io/docs/commands/graph.html" title="Command: graph">docs</a>) which also generates an image (with the help of the 3rd party <a href="http://www.graphviz.org/" title="Graph visualization software">graphviz tool</a>). However, the purpose of that is not to show a visual description of your infrastructure. It is generates a visual representation of an execution plan. You wouldn't show it to a client. It is ugly.</p>
+<p><a href="/static/images/articles/review-cloudformation-terraform/tf-diagram.png" title="Ugly picture">Terraform diagram</a> &lt;&lt; Picture!</p>
+<h2>Template language</h2>
+<p>CloudFormation templates are written in JSON or YAML. JSON would make it easy to generate a template with a script. YAML is very human writeable. Terraform can be written in JSON and a custom templating language called HCL. HashiCorp recommends you use HCL. You cannot write a Terraform template in YAML unfortunately.</p>
+<h2>Flow control</h2>
+<p>The really nice thing about Terraform is that you have features that approximate flow control. You don't exactly have a for loop or if statements, but really you do. You have the "meta-parameter" <code>count</code>. For more on this check out the <a href="https://blog.gruntwork.io/terraform-tips-tricks-loops-if-statements-and-gotchas-f739bbae55f9" title="And this is why Terraform is awesome">excelent post</a> by Yevgeniy Brikman. This means that a Terraform template will be <a href="https://en.wikipedia.org/wiki/Don%27t_repeat_yourself" title="Don't repeat yourself.">DRY</a>.</p>
+<h2>Examples</h2>
+<blockquote>
+<p><a href="https://github.com/mehemken/article-cloudformation-terraform/blob/master/cf-template.yaml" title="CloudFormation example">CloudFormation example</a><br />
+<a href="https://github.com/mehemken/article-cloudformation-terraform/blob/master/tf-template.tf" title="Terraform example">Terraform example</a></p>
+</blockquote>
+<p>I've taken the time to write a sandbox infrastructure in both CloudFomration YAML and Terraform HCL. It describes an internet connected VPC with a public subnet. In the subnet we have some ubuntu/redhat/windows servers. The Terraform template is 113 lines and the CloudFormation template is 186 lines.</p>
+<p>This is a tiny project and the difference in length of the templates is already really noticable. Not to mention, the HCL is full of lines that have a single curly brace. YAML is very dense. Furthermore, the CloudFormation template only describes five servers. The HCL allows me to change a single number to describe as many servers as I want. Not only that, I've configured it so that I'll always have an equal proportion of ubuntu/redhat/windows servers (given the number of servers is a multiple of three). I don't need to change the output configuration or anything.</p>
+<h2>Conclusion</h2>
+<p>Both tools are great. I'd rather use these than manually click through the console UI. It is a very nice UI and sometimes I do fall back for little things. But when designing and creating infrastructure, this is the way to go. I really wish though, that CloudFormation had flow control. And I wish Terraform had a nice visualization tool.</p>
+<p>The CloudFormation problem can be fixed by frameworks such as <a href="https://github.com/cloudtools/troposphere" title="troposphere">troposphere</a> and <a href="https://github.com/bazaarvoice/cloudformation-ruby-dsl" title="cloudformation-ruby-dsl">cloudformation-ruby-dsl</a>. (I have not vetted those tools, it's just a google search). They don't look like they've fully matured but I'm just guessing.</p>
+<p>Hopefully there are tools to visualize Terraform templates. Cloudcraft has it on its radar, but nothing shows they're actually working on it. It is in their <a href="https://trello.com/c/rsDCPHDz/65-add-export-import-from-terraform-template" title="Cloudcraft roadmap">roadmap</a>. If they implement this it would be really good for Terraform. Cloudcraft diagrams are even better than the CloudFormation ones. They are marketing collateral qualitiy pictures.</p>
+<p>These are both young tools and they will be improving a lot I'm sure.</p>
+    <p><a href="None" target="blank" class="btn btn-primary" role="button"><span class="glyphicon glyphicon-thumbs-up"></span> Comment on twitter!</a></p>
+
+	    </div>
+            <div class="col-xs-4 col-sm-4 col-lg-4">
+		
+
+            </div>
+	</div>
+    </div>
+
+    <footer class="footer">
+      <div class="container">
+	  <div class="row">
+	      <p class="text-muted"><a href="/resume/"><span class="glyphicon glyphicon-copyright-mark"></span> M. Hemken 2017</a></p>
+	  </div>
+      </div>
+    </footer>
+  </body>
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <script src="/static/jquery/jquery.min.js"></script>
+    <script src="/static/js/bootstrap.min.js"></script>
+</html>
