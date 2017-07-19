@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="/static/images/Favicon.ico">
+    <link rel="icon" href="/static/images/Favicon.ico">
+
+    <title>mehemken.io</title>
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Raleway|Stardos+Stencil" rel="stylesheet"> 
+
+    <!-- Bootstrap core CSS -->
+    <link href="/static/css/bootstrap.min.css " rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="/static/css/sticky-footer-navbar.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="/static/css/custom.css " rel="stylesheet">
+
+    <!-- Pygments -->
+    <link rel="stylesheet" href="/static/css/pygments.css">
+
+  </head>
+
+  <body>
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-default navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="/">mehemken.io</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+          <ul class="nav navbar-nav">
+              <li><a href="/blog/">Blog</a></li>
+              <li><a href="/about/">About</a></li>
+              <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">More stuff<span class="caret"></span></a>
+              <ul class="dropdown-menu">
+                <li class="dropdown-header">Professional</li>
+                <li><a href="https://www.linkedin.com/in/mehemken">LinkedIn</a></li>
+                <li><a href="https://github.com/mehemken">GitHub</a></li>
+                <li><a href="http://stackoverflow.com/cv/mehemken">StackOverflow CV</a></li>
+                <li role="separator" class="divider"></li>
+                <li class="dropdown-header">Social</li>
+                <li><a href="https://twitter.com/mehemken">Twitter</a></li>
+              </ul>
+            </li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <!-- Begin page content -->
+    <div class="container">
+        <div class="row">
+	    <div class="col-xs-8 col-sm-8 col-lg-8">
+
+    <h1>Ansible basics with Linux and Windows</h1>
+    <p class="lead">18 July 2017</p>
+    <p><a href="None" target="blank" class="btn btn-primary" role="button"><span class="glyphicon glyphicon-thumbs-up"></span> Comment on twitter!</a></p>
+    <hr>
+    <h1>Summary</h1>
+<p>This post is a summary of the steps needed to set up and control a cluster of servers with Ansible. I'm making the assumption that you're not using your desktop machine as the control node, you will be using some remote server. Thus you'll need to install ansible there and copy the key you'll be using to that server.</p>
+<p>Getting stuff to work for Linux nodes is very simple. They are controlled with SSH, and because we have an RSA key, we can just let Ansible deal with the SSH. Windows machines are not quite so simple. You will need to manually log in to each machine and run a script so Ansible can run powershell remotely on the machine. There are probably ways to automate this, but I've not had time to search for them yet.</p>
+<p>By the end of this article you'll have seen all the necessary commands to have an Ansible control node, and various Linux/Windows nodes. I've kept explanatory text very thin, so this can be used as a quick-reference.</p>
+<hr />
+<h1>Installation on host machine</h1>
+<p>You'll need a control node that runs Linux. I've been using an Ubuntu 16.04 control node and I've installed ansible like this.</p>
+<div class="codehilite"><pre><span></span>sudo apt-get install software-properties-common
+sudo apt-add-repository ppa:ansible/ansible
+sudo apt-get update
+sudo apt-get install ansible
+</pre></div>
+
+
+<h2>The key</h2>
+<p>Ansible controls remote nodes using SSH by default. Generate a new key and copy the private key to the control node. If you're using AWS (like I am), just create a new key and copy it to the control node. Copy the key to the host machine:</p>
+<div class="codehilite"><pre><span></span>scp -i /path/to/first/key.pem /path/to/second/key.pem user@hostmachine:/remote/path/to/second/key.pem
+</pre></div>
+
+
+<p>In this example, the first key is the one you're using to ssh into your control node. The second key is the key Ansible will use to manage worker nodes.</p>
+<p>Ansible needs to know the path to the second key. Make sure you change the config file in <code>/etc/ansible/ansible.cfg</code>. </p>
+<hr />
+<h1>Windows</h1>
+<p>I'm not terribly stoked about this, but you have to manually log in to each Windows server to use it with ansible. Perhaps this isn't an issue if I use the AWS dynamic inventory scripts. Or maybe it's still an inconvenience. I don't know. More on that next time.</p>
+<h2>Pywinrm</h2>
+<p>Ok first we need <code>pywinrm</code> on the control node. Ansible uses this to do remote powershell. If your control node doesn't have pip (AWS Ubuntu 16.04 had this issue) you'll need ot get pip first.</p>
+<div class="codehilite"><pre><span></span>sudo easy_install pip
+sudo pip install pywinrm
+</pre></div>
+
+
+<p>Some root level directories need to be changed so we need <code>sudo pip</code> rather than regular <code>pip</code>.</p>
+<h2>Windows login info (AWS)</h2>
+<p>Now we need to RDP into our windows instances. First we get our passwords</p>
+<div class="codehilite"><pre><span></span>aws ec2 get-password-data \
+    --instance-id i-23498752 \
+    --priv-launch-key /path/to/key.pem
+</pre></div>
+
+
+<p>If you don't include the launch key the password data will be encrypted (aka useless).</p>
+<h2>Remote desktop</h2>
+<p>Now we open up port 3389 for RDP (I assume you know how to do that with <a href="http://docs.aws.amazon.com/AWSEC2/latest/WindowsGuide/authorizing-access-to-an-instance.html" title="AWS Windows Ingress Rules Docs">AWS security goups</a>). Then we use a client such as <a href="https://www.remmina.org/wp/" title="Remmina RDP client for Linux">Remmina</a> (or equivalent) to log in to our instance(s). This is necessary to activate WinRM.</p>
+<p>Copy the <a href="https://github.com/ansible/ansible/blob/devel/examples/scripts/ConfigureRemotingForAnsible.ps1" title="manual process">ansible setup script</a> to a notepad file and save it to the desktop. Open an administrator powershell and drag the file to the shell. It should run. When it is done you can disconnect.</p>
+<h2>Windows group_vars</h2>
+<p>We need to add the variables to the <a href="http://docs.ansible.com/ansible/intro_windows.html#inventory" title="windows passwords">windows inventory</a> so ansible knows what the passwords are. Copy the format in that there link.</p>
+<p>And we're done.</p>
+<div class="codehilite"><pre><span></span>ansible windows-machine -m win_ping
+</pre></div>
+
+
+<hr />
+<h1>Useful bits of config</h1>
+<h2>Python on Ubuntu 16.04</h2>
+<p>Ansible is written in Python and runs modules that are also written in Python. The remote machine will need to have Python installed. Ubuntu 16.04 as it exists on EC2 only has <code>python3</code> by default. You should configure your host file to know this.</p>
+<div class="codehilite"><pre><span></span><span class="k">[xenial:vars]</span>
+<span class="na">ansible_python_interpreter</span><span class="o">=</span><span class="s">/usr/bin/python3</span>
+</pre></div>
+
+
+<h2>Redhat on AWS</h2>
+<p>Redhat on EC2 has the user <code>ec2-user</code> by default. You must let the host file know this.</p>
+<div class="codehilite"><pre><span></span><span class="k">[redhat:vars]</span>
+<span class="na">ansible_user</span><span class="o">=</span><span class="s">ec2-user</span>
+</pre></div>
+
+
+<h2>Ping all Windows machines</h2>
+<p>Perhaps there is a more elegant way to do this, but here's how to ping all machines even though they have unique passwords. </p>
+<p>We'll need to adjust our inventory.</p>
+<div class="codehilite"><pre><span></span><span class="k">[first]</span>
+<span class="na">ec2-first-windows-server.com</span>
+
+<span class="k">[second]</span>
+<span class="na">ec2-second-windows-server.com</span>
+
+<span class="k">[windows:children]</span>
+<span class="na">first</span>
+<span class="na">second</span>
+</pre></div>
+
+
+<hr />
+<h1>Conclusion</h1>
+<p>I've given a very brief overview of what to do to set up a cluster of servers you can control with Ansible. You've now seen everything it takes to set up a control node, various worker nodes and control them with Ansible. One major flaw here is that I've not shown how to automate the Windows worker nodes. Windows does not ship with remote powershell activated by default. That's why we have to manually log in and activate it with the powershell script. I'm sure there's a way, so if you know how to do that, please let me know!</p>
+<hr />
+    <p><a href="None" target="blank" class="btn btn-primary" role="button"><span class="glyphicon glyphicon-thumbs-up"></span> Comment on twitter!</a></p>
+
+	    </div>
+            <div class="col-xs-4 col-sm-4 col-lg-4">
+		
+
+            </div>
+	</div>
+    </div>
+
+    <footer class="footer">
+      <div class="container">
+	  <div class="row">
+	      <p class="text-muted"><a href="/resume/"><span class="glyphicon glyphicon-copyright-mark"></span> M. Hemken 2017</a></p>
+	  </div>
+      </div>
+    </footer>
+  </body>
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <script src="/static/jquery/jquery.min.js"></script>
+    <script src="/static/js/bootstrap.min.js"></script>
+</html>
